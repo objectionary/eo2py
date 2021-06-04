@@ -23,6 +23,8 @@ jobs:
         distribution: 'adopt'
     - name: Maven Verify
       run: mvn -B clean verify
+    - name: Maven Generate Code Coverage Reports
+      run: mvn clean jacoco:prepare-agent install jacoco:report
     - name: Test Coverage
       uses: codecov/codecov-action@v1
       with:
