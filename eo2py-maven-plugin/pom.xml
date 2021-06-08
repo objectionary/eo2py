@@ -68,6 +68,11 @@
       <version>3.3.0</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eolang</groupId>
+      <artifactId>eo-parser</artifactId>
+      <version>0.1.25</version>
+    </dependency>
   </dependencies>
 
   <build>
