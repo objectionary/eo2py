@@ -1,24 +1,20 @@
-# +package sandbox
-#
-# [n] > fibonacci
-#   if. > @
-#     n.less 3
-#     small n
-#     rec n 1 1
-#
-#   [n] > small
-#     if. > @
-#       n.eq 2
-#       1
-#       n
-#
-#   [n minus1 minus2] > rec
-#     if. > @
-#       n.eq 3
-#       minus1.add minus2
-#       rec (n.sub 1) (minus1.add minus2) minus1
+from abc import abstractmethod
+
+"""
++package sandbox
+
+[n] > fibonacci
+  if. > @
+    n.less 2
+    n
+    add.
+      fibonacci (n.sub 1)
+      fibonacci (n.sub 2)
+"""
+
 
 class EOBase:
+    @abstractmethod
     def dataize(self):
         return None
 
@@ -105,52 +101,3 @@ class EOSub(EOInt):
         result = left - right
         print(f"{left} - {right} = {result}")
         return result
-
-
-class Fibo(EOInt):
-    def __init__(self, n):
-        super().__init__("")
-        self.n = n
-
-    def dataize(self):
-        n = self.n
-
-        self.__PHI__ = EOIf(
-            EOLess(n, EOInt("2")),
-            n,
-            EOAdd(
-                Fibo(
-                    EOSub(
-                        n,
-                        EOInt("1")
-                    )),
-                Fibo(
-                    EOSub(
-                        n,
-                        EOInt("2")
-                    ))
-            )
-        )
-
-        return self.__PHI__.dataize()
-
-
-print(Fibo(EOInt("11")).dataize())
-
-#
-# def decorator(func):
-#     ABOBA = "ABOBA"
-#     def wrapper(*args, **kwargs):
-#         nonlocal ABOBA
-#         print(ABOBA)
-#         func(*args, **kwargs)
-#
-#     return wrapper
-#
-#
-# @decorator
-# def decoratee():
-#     print("I am fucntion")
-#
-#
-# decoratee()
