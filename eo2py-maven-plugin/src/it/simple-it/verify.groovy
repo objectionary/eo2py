@@ -1,3 +1,1 @@
-File touchFile = new File( basedir, "target/touch.txt" );
-
-assert touchFile.isFile()
+assert new File(basedir, 'target/eo/01-parse/simple.eo.xml').exists()
