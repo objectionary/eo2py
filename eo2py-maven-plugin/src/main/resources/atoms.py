@@ -1,45 +1,37 @@
 from abc import abstractmethod
 
-"""
-+package sandbox
-
-[n] > fibonacci
-  if. > @
-    n.less 2
-    n
-    add.
-      fibonacci (n.sub 1)
-      fibonacci (n.sub 2)
-"""
-
 
 class EOBase:
     @abstractmethod
-    def dataize(self):
+    def dataize(self) -> object:
         return None
 
 
-class EOTrue(EOBase):
-    def dataize(self):
-        return True
+class DataizationException(Exception):
+    pass
 
 
-class EOFalse(EOBase):
+class EOError(EOBase):
+    def __init__(self, msg):
+        self.msg = msg
+
     def dataize(self):
-        return False
+        raise DataizationException(self.msg)
 
 
 class EOBoolean(EOBase):
-
-    def __init__(self, value: EOBase):
-        self.value = value
+    def __init__(self, value: str):
+        if value.lower() == "true" or value.lower() == "false":
+            self.value = value
+        else:
+            raise TypeError("String parameter should be either 'true' or 'false'")
 
     def dataize(self):
-        return self.value.dataize()
+        return self.value == "true"
 
 
 class EOIf(EOBase):
-    def __init__(self, bool: EOBoolean, if_true: EOBase, if_false: EOBase):
+    def __init__(self, bool: EOBase, if_true: EOBase, if_false: EOBase):
         self.bool = bool
         self.if_true = if_true
         self.if_false = if_false
@@ -66,9 +58,8 @@ class EOInt(EOBase):
         return int(self.value)
 
 
-class EOLess(EOBoolean):
-    def __init__(self, left: EOInt, right: EOInt):
-        super().__init__(EOTrue())
+class EOLess(EOBase):
+    def __init__(self, left: EOBase, right: EOBase):
         self.left = left
         self.right = right
 
@@ -77,7 +68,7 @@ class EOLess(EOBoolean):
 
 
 class EOAdd(EOBase):
-    def __init__(self, left: EOInt, right: EOInt):
+    def __init__(self, left: EOBase, right: EOBase):
         self.right = right
         self.left = left
 
@@ -85,13 +76,12 @@ class EOAdd(EOBase):
         left = self.left.dataize()
         right = self.right.dataize()
         result = left + right
-        print(f"{left} + {right} = {result}")
+        # print(f"{left} + {right} = {result}")
         return result
 
 
-class EOSub(EOInt):
-    def __init__(self, left: EOInt, right: EOInt):
-        super().__init__("0")
+class EOSub(EOBase):
+    def __init__(self, left: EOBase, right: EOBase):
         self.right = right
         self.left = left
 
@@ -99,5 +89,5 @@ class EOSub(EOInt):
         left = self.left.dataize()
         right = self.right.dataize()
         result = left - right
-        print(f"{left} - {right} = {result}")
+        # print(f"{left} - {right} = {result}")
         return result
