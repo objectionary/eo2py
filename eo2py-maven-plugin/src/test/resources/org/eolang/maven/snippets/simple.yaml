@@ -1,0 +1,14 @@
+exit: 0
+in: ""
+out:
+  - ".*Hello, dear Jeff.*"
+args: ["main", "Jeff"]
+eo: |
+  +alias stdout org.eolang.io.stdout
+  +alias sprintf org.eolang.txt.sprintf
+
+  [args...] > main
+    stdout > @
+      sprintf
+        "Hello, dear %s!"
+        args.get 0
