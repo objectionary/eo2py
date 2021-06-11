@@ -1,0 +1,25 @@
++package sandbox
++alias stdout org.eolang.io.stdout
++alias sprintf org.eolang.txt.sprintf
+
+[dx dy] > vector
+  pow. > length
+    add.
+      dx.pow 2.0
+      dy.pow 2.0
+    0.5
+
+[x y] > point
+  [to] > distance
+    length. > @
+      vector
+        to.x.sub (^.x)
+        to.y.sub (^.y)
+
+[args...] > app
+  stdout > @
+    sprintf
+      "%f\n"
+      distance.
+        point 1.0 2.0
+        point 4.0 6.0
