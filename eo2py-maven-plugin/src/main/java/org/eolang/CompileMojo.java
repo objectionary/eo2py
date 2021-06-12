@@ -158,12 +158,12 @@ public final class CompileMojo extends AbstractMojo {
                 new OutputTo(CompileMojo.resolve(temp, name)),
                 new TargetSpy(CompileMojo.resolve(pre, name)),
                 new ListOf<>(
-//                    "org.eolang.maven/pre/classes.xsl",
-//                    "org.eolang.maven/pre/junit.xsl",
-//                    "org.eolang.maven/pre/attrs.xsl",
-//                    "org.eolang.maven/pre/varargs.xsl",
-//                    "org.eolang.maven/pre/arrays.xsl",
-//                    "org.eolang.maven/pre/data.xsl",
+                    "org.eolang.maven/pre/classes.xsl",
+                    "org.eolang.maven/pre/junit.xsl",
+                    "org.eolang.maven/pre/attrs.xsl",
+                    "org.eolang.maven/pre/varargs.xsl",
+                    "org.eolang.maven/pre/arrays.xsl",
+                    "org.eolang.maven/pre/data.xsl",
                     "org.eolang.maven/pre/to-python.xsl"
                 )
             ).pass();
