@@ -29,25 +29,25 @@ SOFTWARE.
     <xsl:copy>
       <xsl:apply-templates select="@* except @data"/>
       <xsl:element name="value">
-        <xsl:attribute name="java-type">
+        <xsl:attribute name="python-type">
           <xsl:choose>
             <xsl:when test="@data='string'">
-              <xsl:text>String</xsl:text>
+              <xsl:text>EOString</xsl:text>
             </xsl:when>
             <xsl:when test="@data='regex'">
-              <xsl:text>java.util.regex.Pattern</xsl:text>
+              <xsl:text>EORegex</xsl:text>
             </xsl:when>
             <xsl:when test="@data='char'">
-              <xsl:text>Character</xsl:text>
+              <xsl:text>EOString</xsl:text>
             </xsl:when>
             <xsl:when test="@data='float'">
-              <xsl:text>Double</xsl:text>
+              <xsl:text>EOFloat</xsl:text>
             </xsl:when>
             <xsl:when test="@data='int'">
-              <xsl:text>Long</xsl:text>
+              <xsl:text>EOInt</xsl:text>
             </xsl:when>
             <xsl:when test="@data='bool'">
-              <xsl:text>Boolean</xsl:text>
+              <xsl:text>EOBoolean</xsl:text>
             </xsl:when>
             <xsl:otherwise>
               <xsl:message terminate="yes">
@@ -65,7 +65,7 @@ SOFTWARE.
             <xsl:text>"</xsl:text>
           </xsl:when>
           <xsl:when test="@data='regex'">
-            <xsl:text>java.util.regex.Pattern.compile("</xsl:text>
+            <xsl:text>re.compile("</xsl:text>
             <xsl:value-of select="text()"/>
             <xsl:text>"</xsl:text>
             <xsl:for-each select="string-to-codepoints(@flags)">
@@ -76,7 +76,7 @@ SOFTWARE.
                 <xsl:text> | </xsl:text>
               </xsl:if>
               <xsl:variable name="flag" select="codepoints-to-string(.)"/>
-              <xsl:text>java.util.regex.Pattern.</xsl:text>
+              <xsl:text>re.Pattern.</xsl:text>
               <xsl:choose>
                 <xsl:when test="$flag='i'">
                   <xsl:text>CASE_INSENSITIVE</xsl:text>
@@ -101,18 +101,18 @@ SOFTWARE.
             <xsl:text>)</xsl:text>
           </xsl:when>
           <xsl:when test="@data='char'">
-            <xsl:text>'</xsl:text>
+            <xsl:text>"</xsl:text>
             <xsl:value-of select="text()"/>
-            <xsl:text>'</xsl:text>
+            <xsl:text>"</xsl:text>
           </xsl:when>
-          <xsl:when test="@data='int'">
-            <xsl:value-of select="text()"/>
-            <xsl:text>L</xsl:text>
-          </xsl:when>
-          <xsl:when test="@data='float'">
-            <xsl:value-of select="text()"/>
-            <xsl:text>d</xsl:text>
-          </xsl:when>
+<!--          <xsl:when test="@data='int'">-->
+<!--            <xsl:value-of select="text()"/>-->
+<!--            <xsl:text>L</xsl:text>-->
+<!--          </xsl:when>-->
+<!--          <xsl:when test="@data='float'">-->
+<!--            <xsl:value-of select="text()"/>-->
+<!--            <xsl:text>d</xsl:text>-->
+<!--          </xsl:when>-->
           <xsl:otherwise>
             <xsl:value-of select="text()"/>
           </xsl:otherwise>
