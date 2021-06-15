@@ -1,4 +1,4 @@
-from atoms import EOInt, EOIf, EOLess, EOSub, EOAdd, EOError, EOBase
+import atoms
 
 """
 +package sandbox
@@ -13,30 +13,33 @@ from atoms import EOInt, EOIf, EOLess, EOSub, EOAdd, EOError, EOBase
 """
 
 
-class Fibo(EOBase):
-    def __init__(self, n: EOBase):
+class Fibo(atoms.EOBase):
+    def __init__(self, n: atoms.EOBase, ):
         self.n = n
-        self.__PHI__ = EOError("The object cannot be dataized because it doesn't contain @ attribute")
-        self.__PARENT__ = EOError("This is a toplevel object, it has no parents")
+        self.__PHI__ = atoms.EOError("The object cannot be dataized because it doesn't contain @ attribute")
+        self.__PARENT__ = atoms.EOError("This is a toplevel object, it has no parents")
         self.__THIS__ = self
 
     def generate_attributes(self):
-        self.__PHI__ = EOIf(
-            EOLess(self.n, EOInt("2")),
-            self.n,
-            EOAdd(
-                Fibo(
-                    EOSub(
-                        self.n,
-                        EOInt("1")
-                    )),
-                Fibo(
-                    EOSub(
-                        self.n,
-                        EOInt("2")
-                    ))
-            )
-        )
+        # self.__PHI__ = \
+        #     atoms.EOIf(
+        #         atoms.EOLess(self.n, atoms.EOInt("2")),
+        #         self.n,
+        #         atoms.EOAdd(
+        #             Fibo(
+        #                 atoms.EOSub(
+        #                     self.n,
+        #                     atoms.EOInt("1")
+        #                 )),
+        #             Fibo(
+        #                 atoms.EOSub(
+        #                     self.n,
+        #                     atoms.EOInt("2")
+        #                 ))
+        #         )
+        #     )
+        # TODO: make constructors lazy
+        pass
 
     def dataize(self):
         self.generate_attributes()
@@ -46,5 +49,5 @@ class Fibo(EOBase):
 if __name__ == "__main__":
     import sys
 
-    print(sys.version)
-    print(Fibo(EOInt("15")).dataize())
+    # print(sys.version)
+    print(Fibo(atoms.EOInt("15")).dataize())
