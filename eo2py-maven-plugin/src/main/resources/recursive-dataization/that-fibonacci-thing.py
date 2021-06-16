@@ -1,0 +1,44 @@
+from atoms import *
+
+"""
++package sandbox
+
+[n] > fibonacci
+  if. > @
+    n.less 2
+    n
+    add.
+      fibonacci (n.sub 1)
+      fibonacci (n.sub 2)
+"""
+
+
+class fibonacci(EOnumber):
+    def __init__(self, n: EOnumber):
+        super().__init__(0)
+        self.n = n
+        self.__PARENT__ = EOerror()
+        self.__THIS__ = self
+
+    @lazy_property
+    def __PHI__(self):
+        return self.n.less(EOnumber(2)).If(
+            self.n,
+            fibonacci(self.n.sub(EOnumber(1)))
+                .add(
+                fibonacci(self.n.sub(EOnumber(2)))
+            )
+        )
+
+    def generate_attributes(self):
+        # TODO: make constructors lazy
+        pass
+
+    def dataize(self):
+        self.generate_attributes()
+        return self.__PHI__.dataize()
+
+
+if __name__ == "__main__":
+    res = fibonacci(EOnumber(10))
+    print(res.dataize())
