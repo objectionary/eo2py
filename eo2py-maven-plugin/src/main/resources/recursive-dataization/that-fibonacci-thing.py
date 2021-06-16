@@ -13,6 +13,7 @@ from atoms import *
 """
 
 
+# TODO: figure out type resolution
 class fibonacci(EOnumber):
     def __init__(self, n: EOnumber):
         super().__init__(0)
@@ -30,15 +31,10 @@ class fibonacci(EOnumber):
             )
         )
 
-    def generate_attributes(self):
-        # TODO: make constructors lazy
-        pass
-
     def dataize(self):
-        self.generate_attributes()
         return self.__PHI__.dataize()
 
 
 if __name__ == "__main__":
-    res = fibonacci(EOnumber(10))
+    res = fibonacci(EOnumber(20))
     print(res.dataize())
