@@ -18,7 +18,7 @@ class EOnumber(EObase):
     def __init__(self, value: int):
         self.value = value
         self.add = partial(EOnumber_EOadd, self)
-        self.sub = partial(EOnumber_EOadd, self)
+        self.sub = partial(EOnumber_EOsub, self)
         self.pow = partial(EOnumber_EOpow, self)
         self.less = partial(EOnumber_EOless, self)
 
@@ -43,6 +43,16 @@ class EOnumber_EOadd(EOnumber):
 
     def dataize(self):
         return self.parent.dataize() + self.other.dataize()
+
+
+class EOnumber_EOsub(EOnumber):
+    def __init__(self, parent: EOnumber, other: EOnumber):
+        super().__init__(0)
+        self.parent = parent
+        self.other = other
+
+    def dataize(self):
+        return self.parent.dataize() - self.other.dataize()
 
 
 
@@ -81,9 +91,9 @@ def lazy_property(fn):
 
     @property
     def _lazy_property(self):
-        print(self)
         if not hasattr(self, attr):
-            setattr(self, attr, fn(self))
+            value = fn(self)
+            setattr(self, attr, value)
         return getattr(self, attr)
 
     return _lazy_property
