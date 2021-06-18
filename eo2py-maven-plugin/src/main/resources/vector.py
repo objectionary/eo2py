@@ -49,7 +49,7 @@ class vector(EObase):
         self.dx = dx
         self.dy = dy
 
-    @lazy_property
+    @property
     def length(self):
         # Bound attributes
         return self.dx.pow(EOnumber(2)).add(self.dy.pow(EOnumber(2))).pow(EOnumber(0.5))
@@ -70,7 +70,7 @@ class point_distance(EObase):
         # Free attributes
         self.to = to
 
-    @lazy_property
+    @property
     def __PHI__(self):
         # Bound attributes
         return vector(
@@ -95,7 +95,7 @@ class point(EObase):
         self.x = x
         self.y = y
 
-    @lazy_property
+    @property
     def distance(self):
         # Bound attributes
         return partial(point_distance, self)
@@ -105,7 +105,7 @@ class point(EObase):
 
 
 class app(EObase):
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         # Special attributes
         super().__init__()
         self.__PARENT__ = EOerror()
@@ -114,7 +114,7 @@ class app(EObase):
         # Free attributes
         self.args = args
 
-    @lazy_property
+    @property
     def __PHI__(self):
         # Bound attributes
         return point(EOnumber(1), EOnumber(2)).distance(
