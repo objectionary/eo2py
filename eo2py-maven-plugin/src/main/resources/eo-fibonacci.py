@@ -1,4 +1,4 @@
-import atoms
+from atoms import *
 
 """
 +package sandbox
@@ -12,42 +12,34 @@ import atoms
       fibonacci (n.sub 2)
 """
 
-
-class Fibo(atoms.EOBase):
-    def __init__(self, n: atoms.EOBase, ):
+# TODO: figure out type resolution
+class fibonacci(EObase, metaclass=EOmeta):
+    def __init__(self, n: EOnumber):
+        # super().__init__(0)
         self.n = n
-        self.__PHI__ = atoms.EOError("The object cannot be dataized because it doesn't contain @ attribute")
-        self.__PARENT__ = atoms.EOError("This is a toplevel object, it has no parents")
+        self.__PARENT__ = EOerror()
         self.__THIS__ = self
 
-    def generate_attributes(self):
-        # self.__PHI__ = \
-        #     atoms.EOIf(
-        #         atoms.EOLess(self.n, atoms.EOInt("2")),
-        #         self.n,
-        #         atoms.EOAdd(
-        #             Fibo(
-        #                 atoms.EOSub(
-        #                     self.n,
-        #                     atoms.EOInt("1")
-        #                 )),
-        #             Fibo(
-        #                 atoms.EOSub(
-        #                     self.n,
-        #                     atoms.EOInt("2")
-        #                 ))
-        #         )
-        #     )
-        # TODO: make constructors lazy
-        pass
+    @property
+    def __PHI__(self):
+        return self.n.less(EOnumber(2)).If(
+            self.n,
+            EOapp(
+                EOattr(
+                    EOapp(
+                        fibonacci,
+                        self.n.sub(EOnumber(1))
+                    ),
+                'add'
+                ),
+                fibonacci(self.n.sub(EOnumber(2)))
+            )
+        )
 
     def dataize(self):
-        self.generate_attributes()
         return self.__PHI__.dataize()
 
 
 if __name__ == "__main__":
-    import sys
-
-    # print(sys.version)
-    print(Fibo(atoms.EOInt("15")).dataize())
+    res = fibonacci(EOnumber(2))
+    print(res.dataize())
