@@ -20,20 +20,20 @@ class EOattr(EObase, ):
     def dataize(self) -> object:
         attr = None
         if hasattr(self.obj, self.name):
-            print(f"found .{self.name} in {self.obj}")
+            print(f"Found .{self.name} in {self.obj}.")
             attr = getattr(self.obj, self.name)
         elif hasattr(self.obj, '__PHI__') and hasattr(self.obj.__PHI__, self.name):
-            print(f"did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}")
+            print(f"Did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}.")
             attr = getattr(self.obj.__PHI__, self.name)
         else:
-            print(f"attribute .{self.name} was not found. Dataizing {self.obj}...")
+            print(f"Attribute .{self.name} was not found. Dataizing {self.obj}...")
 
         if attr is not None:
             if callable(attr):
-                print(f"dataizing {attr} applied to {[str(arg) for arg in self.args]}")
+                print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
                 return attr(*self.args).dataize()
             else:
-                print(f"dataizing {attr}, no args needed")
+                print(f"Dataizing {attr}, no args needed.")
                 return attr.dataize()
 
         return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
