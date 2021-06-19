@@ -3,62 +3,35 @@ from abc import abstractmethod
 from functools import partial
 
 
-class EOmeta(type):
-
-    def __call__(cls, *args, **kwargs):
-        def resolve_attribute(obj, attr_name):
-            try:
-                return object.__getattribute__(obj, attr_name)
-            except AttributeError:
-                __PHI__ = object.__getattribute__(obj, '__PHI__')
-                return getattr(__PHI__, attr_name)
-
-        cls.__getattribute__ = resolve_attribute
-
-        new_obj = cls.__new__(cls, *args, **kwargs)
-        object.__getattribute__(new_obj, '__init__')(*args, **kwargs)
-        return new_obj
-
-
-class EObase(metaclass=EOmeta):
+class EObase:
     @abstractmethod
     def dataize(self) -> object:
         raise NotImplementedError()
 
 
-class EOattr(EObase, metaclass=EOmeta):
-    def __init__(self, cls, name):
-        self.cls = cls
+class EOattr(EObase, ):
+    def __init__(self, obj, name, *args):
+        self.obj = obj
         self.name = name
-
-    def dataize(self) -> object:
-        return getattr(self.cls, self.name).dataize()
-
-    def __call__(self, *args, **kwargs):
-        return getattr(self.cls, self.name)(*args, **kwargs)
-
-
-class EOapp(EObase):
-    def __getattribute__(self, item):
-        try:
-            return object.__getattribute__(self, item)
-        except AttributeError:
-            return object.__getattribute__(self.cls(*self.args), item)
-
-    def __init__(self, cls, *args):
-        self.cls = cls
         self.args = args
 
     def dataize(self) -> object:
-        return self.cls(*self.args).dataize()
+        if hasattr(self.obj, self.name):
+            attr = getattr(self.obj, self.name)
+            if callable(attr):
+                return attr(*self.args).dataize()
+            else:
+                return attr.dataize()
+        else:
+            return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
 
 
-class EOerror(EObase, metaclass=EOmeta):
+class EOerror(EObase, ):
     def dataize(self) -> object:
         raise NotImplementedError()
 
 
-class EOnumber(EObase, metaclass=EOmeta):
+class EOnumber(EObase, ):
     def __init__(self, value: int):
         self.value = value
         self.add = partial(EOnumber_EOadd, self)
@@ -66,20 +39,47 @@ class EOnumber(EObase, metaclass=EOmeta):
         self.pow = partial(EOnumber_EOpow, self)
         self.less = partial(EOnumber_EOless, self)
 
-    def dataize(self) -> int:
-        return self.value
+    def dataize(self):
+        return self
+
+    def __eq__(self, other):
+        return EObool("true" if self.value == other.value else "false")
+
+    def __add__(self, other):
+        return EOnumber(self.value + other.value)
+
+    def __lt__(self, other):
+        return EObool("true" if self.value < other.value else "false")
+
+    def __sub__(self, other):
+        return EOnumber(self.value - other.value)
+
+    def __pow__(self, power, modulo=None):
+        return EOnumber(self.value ** power.value)
+
+    def __str__(self):
+        return f"EOnumber({self.value})"
 
 
-class EObool(EObase, metaclass=EOmeta):
-    def __init__(self, value: bool):
+class EObool(EObase, ):
+    def __init__(self, value: str):
         self.value = value
-        self.If = partial(EObool_If, self)
+        self.If = partial(EObool_EOIf, self)
 
     def dataize(self) -> bool:
-        return self.value
+        return self
+
+    def __bool__(self):
+        return self.value == "true"
+
+    def __str__(self):
+        return f"EObool({self.__bool__()})"
+
+    def __eq__(self, other):
+        return EObool("true" if self.__bool__() == other.__bool__() else "false")
 
 
-class EOnumber_EOadd(EOnumber, metaclass=EOmeta):
+class EOnumber_EOadd(EOnumber, ):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
@@ -89,7 +89,7 @@ class EOnumber_EOadd(EOnumber, metaclass=EOmeta):
         return self.parent.dataize() + self.other.dataize()
 
 
-class EOnumber_EOsub(EOnumber, metaclass=EOmeta):
+class EOnumber_EOsub(EOnumber, ):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
@@ -99,8 +99,9 @@ class EOnumber_EOsub(EOnumber, metaclass=EOmeta):
         return self.parent.dataize() - self.other.dataize()
 
 
-class EObool_If(EObase, metaclass=EOmeta):
+class EObool_EOIf(EObool, ):
     def __init__(self, parent: EObool, iftrue: EObase, iffalse: EObase):
+        super().__init__("false")
         self.parent = parent
         self.iftrue = iftrue
         self.iffalse = iffalse
@@ -109,9 +110,9 @@ class EObool_If(EObase, metaclass=EOmeta):
         return self.iftrue.dataize() if self.parent.dataize() else self.iffalse.dataize()
 
 
-class EOnumber_EOless(EObool, metaclass=EOmeta):
+class EOnumber_EOless(EObool, ):
     def __init__(self, parent: EOnumber, other: EOnumber):
-        super().__init__(False)
+        super().__init__("false")
         self.parent = parent
         self.other = other
 
@@ -119,7 +120,7 @@ class EOnumber_EOless(EObool, metaclass=EOmeta):
         return self.parent.dataize() < self.other.dataize()
 
 
-class EOnumber_EOpow(EOnumber, metaclass=EOmeta):
+class EOnumber_EOpow(EOnumber, ):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
@@ -143,4 +144,19 @@ def lazy_property(fn):
 
 
 if __name__ == "__main__":
-    print(EOnumber(2).pow(EOnumber(10)).dataize())
+    assert EOnumber(2) + EOnumber(3) == EOnumber(2).add(EOnumber(3)).dataize()
+    assert EOnumber(2).sub(EOnumber(3)).dataize() == EOnumber(2) - EOnumber(3)
+    assert EOnumber(2) ** EOnumber(3) == EOnumber(2).pow(EOnumber(3)).dataize()
+    assert EObool("true") == EObool("true")
+    assert EOnumber(2) < EOnumber(3)
+    assert (EOnumber(2) < EOnumber(3)) == EOnumber(2).less(EOnumber(3)).dataize()
+
+    assert EOattr(EOnumber(2), 'add')(EOnumber(2)).dataize() == EOnumber(4)
+    assert EOattr(EOnumber(2), 'add')(EOattr(EOnumber(2), 'add')(EOnumber(2))).dataize() == EOnumber(6)
+    dx = EOnumber(2)
+    dy = EOnumber(2)
+    dx_squared = EOattr(dx, 'pow')(EOnumber(2))
+    dy_squared = EOattr(dy, 'pow')(EOnumber(2))
+    dx_squared_plus_dy_squared = EOattr(dx_squared, 'add')(dy_squared)
+    sqrt_dx_squared_plus_dy_squared = EOattr(dx_squared_plus_dy_squared, 'pow')(EOnumber(0.5))
+    print(sqrt_dx_squared_plus_dy_squared.dataize())
