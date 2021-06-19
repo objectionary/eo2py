@@ -5,7 +5,7 @@ from functools import partial
 
 class EObase:
     @abstractmethod
-    def dataize(self) -> object:
+    def dataize(self) -> EObase:
         raise NotImplementedError()
 
 
@@ -38,6 +38,7 @@ class EOnumber(EObase, ):
         self.sub = partial(EOnumber_EOsub, self)
         self.pow = partial(EOnumber_EOpow, self)
         self.less = partial(EOnumber_EOless, self)
+        self.mul = partial(EOnumber_EOmul, self)
 
     def dataize(self):
         return self
@@ -60,13 +61,16 @@ class EOnumber(EObase, ):
     def __str__(self):
         return f"EOnumber({self.value})"
 
+    def __mul__(self, other):
+        return EOnumber(self.value * other.value)
+
 
 class EObool(EObase, ):
     def __init__(self, value: str):
         self.value = value
         self.If = partial(EObool_EOIf, self)
 
-    def dataize(self) -> bool:
+    def dataize(self):
         return self
 
     def __bool__(self):
@@ -99,6 +103,16 @@ class EOnumber_EOsub(EOnumber, ):
         return self.parent.dataize() - self.other.dataize()
 
 
+class EOnumber_EOmul(EOnumber, ):
+    def __init__(self, parent: EOnumber, other: EOnumber):
+        super().__init__(0)
+        self.parent = parent
+        self.other = other
+
+    def dataize(self):
+        return self.parent.dataize() * self.other.dataize()
+
+
 class EObool_EOIf(EObool, ):
     def __init__(self, parent: EObool, iftrue: EObase, iffalse: EObase):
         super().__init__("false")
@@ -128,6 +142,63 @@ class EOnumber_EOpow(EOnumber, ):
 
     def dataize(self):
         return self.parent.dataize() ** self.other.dataize()
+
+
+class EOarray(EObase):
+    def __init__(self, *elements):
+        self.elements = elements
+        self.get = partial(EOarray_EOget, self)
+
+    def dataize(self):
+        return self
+
+    def __getitem__(self, item):
+        if isinstance(item, EOnumber):
+            assert isinstance(item.value, int)
+            return self.elements[item.value]
+        else:
+            raise AttributeError(f"{item} is not EOnumber!")
+
+
+class EOarray_EOget(EObase):
+    def __init__(self, arr: EOarray, i: EOnumber):
+        self.arr = arr
+        self.i = i
+
+    def dataize(self):
+        return self.arr[self.i]
+
+
+class EOstring(EObase):
+    def __init__(self, value: str):
+        self.value = value
+
+    def dataize(self) -> EObase:
+        return self
+
+    def __str__(self):
+        return self.value
+
+
+class EOsprintf(EOstring):
+    def __init__(self, fmt: EOstring, *args: EObase):
+        super().__init__("ABOBA")
+        self.fmt = fmt
+        self.args = args
+
+    def dataize(self) -> EObase:
+        # TODO: introduce unique interface for retrieving data
+        # For now, it's just accessing the value attribute
+        return EOstring(str(self.fmt) % tuple(arg.dataize().value for arg in self.args))
+
+
+class EOstdout(EObase):
+    def __init__(self, text: EOstring):
+        self.text = text
+
+    def dataize(self) -> EObase:
+        print(self.text.dataize())
+        return self
 
 
 def lazy_property(fn):
