@@ -2,7 +2,6 @@ from __future__ import annotations
 from abc import abstractmethod
 from functools import partial
 
-
 class EObase:
     @abstractmethod
     def dataize(self) -> EObase:
@@ -15,15 +14,29 @@ class EOattr(EObase, ):
         self.name = name
         self.args = args
 
+    def __str__(self):
+        return f"{self.obj}.{self.name}"
+
     def dataize(self) -> object:
+        attr = None
         if hasattr(self.obj, self.name):
+            print(f"found .{self.name} in {self.obj}")
             attr = getattr(self.obj, self.name)
+        elif hasattr(self.obj, '__PHI__') and hasattr(self.obj.__PHI__, self.name):
+            print(f"did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}")
+            attr = getattr(self.obj.__PHI__, self.name)
+        else:
+            print(f"attribute .{self.name} was not found. Dataizing {self.obj}...")
+
+        if attr is not None:
             if callable(attr):
+                print(f"dataizing {attr} applied to {[str(arg) for arg in self.args]}")
                 return attr(*self.args).dataize()
             else:
+                print(f"dataizing {attr}, no args needed")
                 return attr.dataize()
-        else:
-            return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
+
+        return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
 
 
 class EOerror(EObase, ):
@@ -39,6 +52,7 @@ class EOnumber(EObase, ):
         self.pow = partial(EOnumber_EOpow, self)
         self.less = partial(EOnumber_EOless, self)
         self.mul = partial(EOnumber_EOmul, self)
+        self.leq = partial(EOnumber_EOleq, self)
 
     def dataize(self):
         return self
@@ -51,6 +65,9 @@ class EOnumber(EObase, ):
 
     def __lt__(self, other):
         return EObool("true" if self.value < other.value else "false")
+
+    def __le__(self, other):
+        return self == other or self < other
 
     def __sub__(self, other):
         return EOnumber(self.value - other.value)
@@ -132,6 +149,16 @@ class EOnumber_EOless(EObool, ):
 
     def dataize(self):
         return self.parent.dataize() < self.other.dataize()
+
+
+class EOnumber_EOleq(EObool, ):
+    def __init__(self, parent: EOnumber, other: EOnumber):
+        super().__init__("false")
+        self.parent = parent
+        self.other = other
+
+    def dataize(self):
+        return self.parent.dataize() <= self.other.dataize()
 
 
 class EOnumber_EOpow(EOnumber, ):
