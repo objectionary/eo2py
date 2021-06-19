@@ -23,14 +23,16 @@ class fibonacci(EObase):
 
     @property
     def __PHI__(self):
-        return self.n.less(EOnumber(2)).If(
+        return EOattr(
+            EOattr(self.n, 'less', EOnumber(2)),
+            'If',
             self.n,
             EOattr(
                 fibonacci(self.n.sub(EOnumber(1))),
-                'add',
-                fibonacci(self.n.sub(EOnumber(2)))
+                   'add',
+                   fibonacci(self.n.sub(EOnumber(2)))
+               )
             )
-        )
 
     def dataize(self):
         return self.__PHI__.dataize()
