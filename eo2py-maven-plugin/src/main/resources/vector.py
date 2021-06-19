@@ -52,7 +52,14 @@ class vector(EObase):
     @property
     def length(self):
         # Bound attributes
-        return self.dx.pow(EOnumber(2)).add(self.dy.pow(EOnumber(2))).pow(EOnumber(0.5))
+        return EOattr(
+            EOattr(
+                EOattr(self.dx, 'pow', EOnumber(2)),
+                'add',
+                EOattr(self.dy, 'pow', EOnumber(2))),
+            'pow',
+            EOnumber(0.5)
+        )
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
@@ -73,10 +80,10 @@ class point_distance(EObase):
     @property
     def __PHI__(self):
         # Bound attributes
-        return vector(
-            self.to.x.sub(self.__PARENT__.x),
-            self.to.y.sub(self.__PARENT__.y)
-        ).length
+        return EOattr(vector(
+            EOattr(EOattr(self.to, 'x'), 'sub', EOattr(self.__PARENT__, 'x')),
+            EOattr(EOattr(self.to, 'y'), 'sub', EOattr(self.__PARENT__, 'y'))
+        ), 'length')
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
@@ -117,7 +124,9 @@ class app(EObase):
     @property
     def __PHI__(self):
         # Bound attributes
-        return point(EOnumber(1), EOnumber(2)).distance(
+        return EOattr(
+            point(EOnumber(1), EOnumber(2)),
+            'distance',
             point(EOnumber(4), EOnumber(6))
         )
 

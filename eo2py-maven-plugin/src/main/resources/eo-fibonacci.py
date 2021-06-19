@@ -12,8 +12,9 @@ from atoms import *
       fibonacci (n.sub 2)
 """
 
+
 # TODO: figure out type resolution
-class fibonacci(EObase, metaclass=EOmeta):
+class fibonacci(EObase):
     def __init__(self, n: EOnumber):
         # super().__init__(0)
         self.n = n
@@ -24,14 +25,9 @@ class fibonacci(EObase, metaclass=EOmeta):
     def __PHI__(self):
         return self.n.less(EOnumber(2)).If(
             self.n,
-            EOapp(
-                EOattr(
-                    EOapp(
-                        fibonacci,
-                        self.n.sub(EOnumber(1))
-                    ),
-                'add'
-                ),
+            EOattr(
+                fibonacci(self.n.sub(EOnumber(1))),
+                'add',
                 fibonacci(self.n.sub(EOnumber(2)))
             )
         )
@@ -41,5 +37,5 @@ class fibonacci(EObase, metaclass=EOmeta):
 
 
 if __name__ == "__main__":
-    res = fibonacci(EOnumber(2))
+    res = fibonacci(EOnumber(25))
     print(res.dataize())
