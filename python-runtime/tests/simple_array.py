@@ -1,4 +1,4 @@
-from atoms import *
+from eo2py.atoms import *
 
 """
 [args...] > appArray

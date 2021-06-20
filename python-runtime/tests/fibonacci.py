@@ -1,4 +1,4 @@
-from atoms import *
+from eo2py.atoms import *
 
 """
 +package sandbox
@@ -39,5 +39,5 @@ class fibonacci(EObase):
 
 
 if __name__ == "__main__":
-    res = fibonacci(EOnumber(20))
+    res = fibonacci(EOnumber(10))
     print(res.dataize())
