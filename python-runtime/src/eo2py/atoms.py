@@ -88,7 +88,8 @@ class EOnumber(EObase, ):
 
 class EObool(EObase, ):
     def __init__(self, value: str):
-        self.value = value
+        self.value = value.lower().strip()
+        assert self.value == "true" or self.value == "false"
         self.If = partial(EObool_EOIf, self)
 
     def dataize(self):
@@ -101,10 +102,10 @@ class EObool(EObase, ):
         return self.value == "true"
 
     def __str__(self):
-        return f"EObool({self.__bool__()})"
+        return f"EObool({bool(self)})"
 
     def __eq__(self, other):
-        return EObool("true" if self.__bool__() == other.__bool__() else "false")
+        return EObool("true" if bool(self) == bool(self) else "false")
 
 
 class EOnumber_EOadd(EOnumber, ):
