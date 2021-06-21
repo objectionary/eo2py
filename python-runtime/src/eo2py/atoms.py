@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from functools import partial
 
+
 class EObase:
     @abstractmethod
     def dataize(self) -> EObase:
@@ -45,7 +46,7 @@ class EOerror(EObase, ):
 
 
 class EOnumber(EObase, ):
-    def __init__(self, value: int):
+    def __init__(self, value: int | float):
         self.value = value
         self.add = partial(EOnumber_EOadd, self)
         self.sub = partial(EOnumber_EOsub, self)
@@ -56,6 +57,9 @@ class EOnumber(EObase, ):
 
     def dataize(self):
         return self
+
+    def data(self):
+        return self.value
 
     def __eq__(self, other):
         return EObool("true" if self.value == other.value else "false")
@@ -89,6 +93,9 @@ class EObool(EObase, ):
 
     def dataize(self):
         return self
+
+    def data(self):
+        return bool(self)
 
     def __bool__(self):
         return self.value == "true"
@@ -172,17 +179,20 @@ class EOnumber_EOpow(EOnumber, ):
 
 
 class EOarray(EObase):
-    def __init__(self, *elements):
+    def __init__(self, *elements: List[EObase]):
         self.elements = elements
         self.get = partial(EOarray_EOget, self)
 
     def dataize(self):
         return self
 
+    def data(self):
+        return [elem.data() for elem in self.elements]
+
     def __getitem__(self, item):
         if isinstance(item, EOnumber):
             assert isinstance(item.value, int)
-            return self.elements[item.value]
+            return self.elements[item.data()]
         else:
             raise AttributeError(f"{item} is not EOnumber!")
 
@@ -203,6 +213,9 @@ class EOstring(EObase):
     def dataize(self) -> EObase:
         return self
 
+    def data(self):
+        return self.value
+
     def __str__(self):
         return self.value
 
@@ -214,9 +227,7 @@ class EOsprintf(EOstring):
         self.args = args
 
     def dataize(self) -> EObase:
-        # TODO: introduce unique interface for retrieving data
-        # For now, it's just accessing the value attribute
-        return EOstring(str(self.fmt) % tuple(arg.dataize().value for arg in self.args))
+        return EOstring(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
 
 
 class EOstdout(EObase):
@@ -226,6 +237,9 @@ class EOstdout(EObase):
     def dataize(self) -> EObase:
         print(self.text.dataize())
         return self
+
+    def data(self):
+        return None
 
 
 def lazy_property(fn):
@@ -239,5 +253,4 @@ def lazy_property(fn):
         return getattr(self, attr)
 
     return _lazy_property
-
 
