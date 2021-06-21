@@ -2,3 +2,6 @@ build
 twine
 bump2version
 eo2py
+pytest >= 6.0.0
+pytest-cov
+tox
