@@ -1,0 +1,2 @@
+[run]
+omit = src/eo2py/recursive_dataization/*

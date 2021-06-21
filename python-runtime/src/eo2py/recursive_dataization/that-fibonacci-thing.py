@@ -1,4 +1,4 @@
-from atoms import *
+from src.eo2py.atoms import *
 
 """
 +package sandbox

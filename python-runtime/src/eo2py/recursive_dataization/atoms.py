@@ -3,62 +3,18 @@ from abc import abstractmethod
 from functools import partial
 
 
-class EOmeta(type):
-
-    def __call__(cls, *args, **kwargs):
-        def resolve_attribute(obj, attr_name):
-            try:
-                return object.__getattribute__(obj, attr_name)
-            except AttributeError:
-                __PHI__ = object.__getattribute__(obj, '__PHI__')
-                return getattr(__PHI__, attr_name)
-
-        cls.__getattribute__ = resolve_attribute
-
-        new_obj = cls.__new__(cls, *args, **kwargs)
-        object.__getattribute__(new_obj, '__init__')(*args, **kwargs)
-        return new_obj
-
-
-class EObase(metaclass=EOmeta):
+class EObase:
     @abstractmethod
     def dataize(self) -> object:
         raise NotImplementedError()
 
 
-class EOattr(EObase, metaclass=EOmeta):
-    def __init__(self, cls, name):
-        self.cls = cls
-        self.name = name
-
-    def dataize(self) -> object:
-        return getattr(self.cls, self.name).dataize()
-
-    def __call__(self, *args, **kwargs):
-        return getattr(self.cls, self.name)(*args, **kwargs)
-
-
-class EOapp(EObase):
-    def __getattribute__(self, item):
-        try:
-            return object.__getattribute__(self, item)
-        except AttributeError:
-            return object.__getattribute__(self.cls(*self.args), item)
-
-    def __init__(self, cls, *args):
-        self.cls = cls
-        self.args = args
-
-    def dataize(self) -> object:
-        return self.cls(*self.args).dataize()
-
-
-class EOerror(EObase, metaclass=EOmeta):
+class EOerror(EObase):
     def dataize(self) -> object:
         raise NotImplementedError()
 
 
-class EOnumber(EObase, metaclass=EOmeta):
+class EOnumber(EObase):
     def __init__(self, value: int):
         self.value = value
         self.add = partial(EOnumber_EOadd, self)
@@ -70,7 +26,7 @@ class EOnumber(EObase, metaclass=EOmeta):
         return self.value
 
 
-class EObool(EObase, metaclass=EOmeta):
+class EObool(EObase):
     def __init__(self, value: bool):
         self.value = value
         self.If = partial(EObool_If, self)
@@ -79,7 +35,7 @@ class EObool(EObase, metaclass=EOmeta):
         return self.value
 
 
-class EOnumber_EOadd(EOnumber, metaclass=EOmeta):
+class EOnumber_EOadd(EOnumber):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
@@ -89,7 +45,7 @@ class EOnumber_EOadd(EOnumber, metaclass=EOmeta):
         return self.parent.dataize() + self.other.dataize()
 
 
-class EOnumber_EOsub(EOnumber, metaclass=EOmeta):
+class EOnumber_EOsub(EOnumber):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
@@ -99,7 +55,8 @@ class EOnumber_EOsub(EOnumber, metaclass=EOmeta):
         return self.parent.dataize() - self.other.dataize()
 
 
-class EObool_If(EObase, metaclass=EOmeta):
+
+class EObool_If(EObase):
     def __init__(self, parent: EObool, iftrue: EObase, iffalse: EObase):
         self.parent = parent
         self.iftrue = iftrue
@@ -109,7 +66,7 @@ class EObool_If(EObase, metaclass=EOmeta):
         return self.iftrue.dataize() if self.parent.dataize() else self.iffalse.dataize()
 
 
-class EOnumber_EOless(EObool, metaclass=EOmeta):
+class EOnumber_EOless(EObool):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(False)
         self.parent = parent
@@ -119,7 +76,7 @@ class EOnumber_EOless(EObool, metaclass=EOmeta):
         return self.parent.dataize() < self.other.dataize()
 
 
-class EOnumber_EOpow(EOnumber, metaclass=EOmeta):
+class EOnumber_EOpow(EOnumber):
     def __init__(self, parent: EOnumber, other: EOnumber):
         super().__init__(0)
         self.parent = parent
