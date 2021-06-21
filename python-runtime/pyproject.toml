@@ -11,6 +11,7 @@ build-backend = "setuptools.build_meta"
 minversion = "6.0"
 addopts = [
     "-v",
+    "--cov-config=.coveragerc",
     "--cov-report=xml:tests/reports/coverage.xml",
     "--cov-report=html:tests/reports/html",
     "--cov=src"
