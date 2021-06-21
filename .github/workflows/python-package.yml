@@ -41,9 +41,9 @@ jobs:
       run: |
         cd python-runtime && ls
         pytest
+        ls tests/reports
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: python-runtime/tests/reports
         
