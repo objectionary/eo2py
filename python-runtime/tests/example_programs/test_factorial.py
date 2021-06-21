@@ -72,6 +72,6 @@ class appFactorial(EObase):
         return self.__PHI__.dataize()
 
 
-if __name__ == "__main__":
-    app = appFactorial(EOnumber(10))
-    app.dataize()
+def test_factorial():
+    app = factorial(EOnumber(5))
+    assert app.dataize() == EOnumber(120)

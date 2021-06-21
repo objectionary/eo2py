@@ -201,5 +201,5 @@ class app(EObase):
         return self.__PHI__.dataize()
 
 
-if __name__ == "__main__":
-    app().dataize()
+def test_vector():
+    assert app().dataize()

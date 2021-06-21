@@ -35,9 +35,7 @@ class appArray(EObase):
         return self.__PHI__.dataize()
 
 
-
-
-if __name__ == "__main__":
+def test_simple_array():
     app = appArray(
         EOnumber(1),
         EOnumber(2),
@@ -45,4 +43,4 @@ if __name__ == "__main__":
         EOnumber(4),
         EOnumber(5),
     )
-    print(app.dataize())
+    assert app.dataize()
