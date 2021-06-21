@@ -5,7 +5,6 @@ from eo2py.atoms import *
 """
 
 
-
 class EOperson(EObase):
     def __init__(self, name: EObase, ):
         self.name = name
