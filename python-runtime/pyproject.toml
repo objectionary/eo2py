@@ -1,6 +1,27 @@
+# setuptools
 [build-system]
 requires = [
     "setuptools>=42",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+# pytest configs
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-v --color=yes"
+testpaths = [
+    "tests",
+    "integration",
+]
+
+# tox configs
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py36, py37, py38
+
+[testenv]
+deps = pytest >= 6.0.0
+commands = pytest
+"""
