@@ -9,10 +9,14 @@ build-backend = "setuptools.build_meta"
 # pytest configs
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v --color=yes"
+addopts = [
+    "-v",
+    "--cov-report=xml:tests/reports/coverage.xml",
+    "--cov-report=html:tests/reports/html",
+    "--cov=src"
+]
 testpaths = [
     "tests",
-    "integration",
 ]
 
 # tox configs
@@ -20,8 +24,9 @@ testpaths = [
 legacy_tox_ini = """
 [tox]
 envlist = py36, py37, py38
+isolated_build=true
 
 [testenv]
-deps = pytest >= 6.0.0
+deps = -rrequirements.txt
 commands = pytest
 """
