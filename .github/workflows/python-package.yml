@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Go to package directory
-      run: cd python-runtime
+      run: cd python-runtime && ls
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
