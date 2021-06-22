@@ -239,16 +239,18 @@ class Array(Atom):
     def data(self) -> List:
         return [elem.dataize().data() for elem in self.elements]
 
-    def __getitem__(self, item: Number):
+    def __getitem__(self, item: Object):
         if isinstance(item, Number):
             assert isinstance(item.value, int)
-            return self.elements[item.data()]
+            index = item.dataize().data()
+            assert isinstance(index, int)
+            return self.elements[index]
         else:
             raise AttributeError(f"{item} is not an instance of Number!")
 
 
 class ArrayGet(Object):
-    def __init__(self, arr: Array, i: Number):
+    def __init__(self, arr: Array, i: Object):
         self.arr = arr
         self.i = i
 
