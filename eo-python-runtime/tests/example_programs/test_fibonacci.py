@@ -14,24 +14,24 @@ from eo2py.atoms import *
 
 
 # TODO: figure out type resolution
-class fibonacci(EObase):
-    def __init__(self, n: EObase):
+class EOfibonacci(Object):
+    def __init__(self, n: Object):
         # super().__init__(0)
         self.n = n
-        self.__PARENT__ = EOerror()
+        self.__PARENT__ = DataizationError()
         self.__THIS__ = self
 
     @property
     def __PHI__(self):
-        return EOattr(
-            EOattr(self.n, 'less', EOnumber(2)),
-            'If',
+        return Attribute(
+            Attribute(self.n, "Less").applied_to(Number(2)),
+            "If",
+        ).applied_to(
             self.n,
-            EOattr(
-                fibonacci(EOattr(self.n, 'sub', EOnumber(1))),
-                'add',
-                fibonacci(EOattr(self.n, 'sub', EOnumber(2)))
-            )
+            Attribute(
+                EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(1))),
+                "Add",
+            ).applied_to(EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(2)))),
         )
 
     def dataize(self):
@@ -39,5 +39,5 @@ class fibonacci(EObase):
 
 
 def test_fibonacci():
-    res = fibonacci(EOnumber(10))
-    assert res.dataize() == EOnumber(55)
+    res = EOfibonacci(Number(10))
+    assert res.dataize() == Number(55)

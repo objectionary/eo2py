@@ -14,20 +14,15 @@ from eo2py.atoms import *
 """
 
 
-class appArray(EObase):
+class EOappArray(Object):
     def __init__(self, *args):
         self.args = args
 
     @property
     def __PHI__(self):
-        return EOstdout(
-            EOsprintf(
-                EOstring("%d"),
-                EOattr(
-                    EOarray(*self.args),
-                    'get',
-                    EOnumber(3)
-                )
+        return Stdout(
+            FormattedString(
+                String("%d"), Attribute(Array(*self.args), "Get").applied_to(Number(3))
             )
         )
 
@@ -36,11 +31,11 @@ class appArray(EObase):
 
 
 def test_simple_array():
-    app = appArray(
-        EOnumber(1),
-        EOnumber(2),
-        EOnumber(3),
-        EOnumber(4),
-        EOnumber(5),
+    app = EOappArray(
+        Number(1),
+        Number(2),
+        Number(3),
+        Number(4),
+        Number(5),
     )
     assert app.dataize()

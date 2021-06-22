@@ -26,7 +26,7 @@ from eo2py.atoms import *
 """
 
 
-class factorial(EObase):
+class EOfactorial(Object):
     def __init__(self, n):
         self.n = n
         self.__PARENT__ = self
@@ -34,44 +34,36 @@ class factorial(EObase):
 
     @property
     def __PHI__(self):
-        return EOattr(
-            EOattr(self.n, 'less', EOnumber(2)),
-            'If',
-            EOnumber(1),
-            EOattr(self.n,
-                   'mul',
-                   factorial(
-                       EOattr(self.n, 'sub', EOnumber(1))
-                   )
-                   )
+        return Attribute(
+            Attribute(self.n, "Less").applied_to(Number(2)),
+            "If",
+        ).applied_to(
+            Number(1),
+            Attribute(self.n, "Mul").applied_to(
+                EOfactorial(Attribute(self.n, "Sub").applied_to(Number(1)))
+            ),
         )
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
 
 
-class appFactorial(EObase):
+class EOappFactorial(Object):
     def __init__(self, *args):
-        self.args = EOarray(*args)
+        self.args = Array(*args)
 
     @property
     def n(self):
-        return EOattr(self.args, 'get', EOnumber(0))
+        return Attribute(self.args, "get").applied_to(Number(0))
 
     @property
     def __PHI__(self):
-        return EOstdout(
-            EOsprintf(
-                EOstring("%d! = %d"),
-                self.n,
-                factorial(self.n)
-            )
-        )
+        return Stdout(FormattedString(String("%d! = %d"), self.n, EOfactorial(self.n)))
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
 
 
 def test_factorial():
-    app = factorial(EOnumber(5))
-    assert app.dataize() == EOnumber(120)
+    app = EOfactorial(Number(5))
+    assert app.dataize() == Number(120)

@@ -5,56 +5,71 @@ import math
 
 def test_base():
     with pytest.raises(NotImplementedError) as e:
-        EObase().dataize()
+        Object().dataize()
 
 
 def test_error():
     with pytest.raises(NotImplementedError) as e:
-        EOerror().dataize()
+        DataizationError().dataize()
 
 
 @pytest.mark.parametrize("a", list(range(1, 10)))
 @pytest.mark.parametrize("b", list(range(1, 10)))
 def test_number(a, b):
-    assert EOnumber(a) == EOnumber(EOnumber(a).data())
-    assert EOnumber(a) - EOnumber(b) == EOnumber(a).sub(EOnumber(b)).dataize() == EOnumber(a - b)
-    assert EOnumber(a) + EOnumber(b) == EOnumber(a).add(EOnumber(b)).dataize() == EOnumber(a + b)
-    assert EOnumber(a) * EOnumber(b) == EOnumber(a).mul(EOnumber(b)).dataize() == EOnumber(a * b)
-    assert EOnumber(a) ** EOnumber(b) == EOnumber(a).pow(EOnumber(b)).dataize() == EOnumber(math.pow(a, b))
-    assert (EOnumber(a) < EOnumber(b)) == EOnumber(a).less(EOnumber(b)).dataize() == \
-           EObool("true" if a < b else "false")
-    assert (EOnumber(a) <= EOnumber(b)) == EOnumber(a).leq(EOnumber(b)).dataize() == \
-           EObool("true" if a <= b else "false")
+    assert Number(a) == Number(Number(a).data())
+    assert Number(a) - Number(b) == Number(a).Sub(Number(b)).dataize() == Number(a - b)
+    assert Number(a) + Number(b) == Number(a).Add(Number(b)).dataize() == Number(a + b)
+    assert Number(a) * Number(b) == Number(a).Mul(Number(b)).dataize() == Number(a * b)
+    assert (
+        Number(a) ** Number(b)
+        == Number(a).Pow(Number(b)).dataize()
+        == Number(math.pow(a, b))
+    )
+    assert (
+        (Number(a) < Number(b))
+        == Number(a).Less(Number(b)).dataize()
+        == Boolean("true" if a < b else "false")
+    )
+    assert (
+        (Number(a) <= Number(b))
+        == Number(a).Leq(Number(b)).dataize()
+        == Boolean("true" if a <= b else "false")
+    )
 
 
 def test_string():
     value = "String"
-    assert str(EOstring(value)) == str(EOstring(value).dataize()) == EOstring(value).data() == value
+    assert (
+        str(String(value))
+        == str(String(value).dataize())
+        == String(value).data()
+        == value
+    )
 
 
 def test_array():
-    arr = EOarray(EOnumber(1), EOnumber(2), EOnumber(3), EOnumber(4), EOnumber(5))
+    arr = Array(Number(1), Number(2), Number(3), Number(4), Number(5))
     assert arr.dataize() == arr
     assert arr.dataize().data() == arr.data() == [1, 2, 3, 4, 5]
-    assert arr[EOnumber(2)] == EOnumber(3)
+    assert arr[Number(2)] == Number(3)
     with pytest.raises(AttributeError) as e:
-        assert arr[2] == EOnumber(3)
+        assert arr[2] == Number(3)
 
 
 def test_bool():
-    true = EObool("true")
-    false = EObool("false")
-    assert true == EObool("TRUE") == EObool("True") == EObool(" \n True\n")
-    assert false == EObool("FALSE") == EObool("False") == EObool("\t\rFalse")
+    true = Boolean("true")
+    false = Boolean("false")
+    assert true == Boolean("TRUE") == Boolean("True") == Boolean(" \n True\n")
+    assert false == Boolean("FALSE") == Boolean("False") == Boolean("\t\rFalse")
     with pytest.raises(AssertionError) as e:
-        false = EObool("string")
+        false = Boolean("string")
     assert true and not false
-    assert str(true) == "EObool(True)"
-    assert str(false) == "EObool(False)"
+    assert str(true) == "Boolean(True)"
+    assert str(false) == "Boolean(False)"
 
 
 def test_stdout(capsys):
-    stdout = EOstdout(EOstring("Test"))
+    stdout = Stdout(String("Test"))
     assert stdout.data() is None
     stdout.dataize()
     assert capsys.readouterr().out == "Test\n"
@@ -67,18 +82,24 @@ def test_lazy_property():
             return 12
 
     obj = A()
-    assert hasattr(obj, 'a')
+    assert hasattr(obj, "a")
     assert obj.a == 12
 
 
-if __name__ == "__main__":
-    assert EOattr(EOnumber(2), 'add', EOnumber(2)).dataize() == EOnumber(4)
-    assert EOattr(EOnumber(2), 'add', EOattr(EOnumber(2), 'add', EOnumber(2))).dataize() == EOnumber(6)
-    assert EOattr(EOattr(EOnumber(2), 'add', EOnumber(2)), 'add', EOnumber(2)).dataize() == EOnumber(6)
-    dx = EOnumber(2)
-    dy = EOnumber(2)
-    dx_squared = EOattr(dx, 'pow', EOnumber(2))
-    dy_squared = EOattr(dy, 'pow', EOnumber(2))
-    dx_squared_plus_dy_squared = EOattr(dx_squared, 'add', dy_squared)
-    sqrt_dx_squared_plus_dy_squared = EOattr(dx_squared_plus_dy_squared, 'pow', EOnumber(0.5))
-    assert sqrt_dx_squared_plus_dy_squared.dataize() == EOnumber(8 ** 0.5)
+def attribute_test():
+    assert Attribute(Number(2), "add").applied_to(Number(2)).dataize() == Number(4)
+    assert Attribute(Number(2), "add").applied_to(
+        Attribute(Number(2), "add").applied_to(Number(2))
+    ).dataize() == Number(6)
+    assert Attribute(
+        Attribute(Number(2), "add").applied_to(Number(2)), "add"
+    ).applied_to(Number(2)).dataize() == Number(6)
+    dx = Number(2)
+    dy = Number(2)
+    dx_squared = Attribute(dx, "pow").applied_to(Number(2))
+    dy_squared = Attribute(dy, "pow").applied_to(Number(2))
+    dx_squared_plus_dy_squared = Attribute(dx_squared, "add").applied_to(dy_squared)
+    sqrt_dx_squared_plus_dy_squared = Attribute(
+        dx_squared_plus_dy_squared, "pow"
+    ).applied_to(Number(0.5))
+    assert sqrt_dx_squared_plus_dy_squared.dataize() == Number(8 ** 0.5)
