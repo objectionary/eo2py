@@ -1,5 +1,6 @@
 target/
 .idea/
+testXSLT.sh
 *.iml
 pom.xml.tag
 pom.xml.releaseBackup
