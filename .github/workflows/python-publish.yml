@@ -18,8 +18,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Go to the python-runtime directory
-      run: cd python-runtime
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -27,10 +25,13 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: |
+        cd eo-runtime-python && ls
         python -m pip install --upgrade pip
         pip install build
     - name: Build package
-      run: python -m build
+      run: |
+        cd eo-runtime-python && ls
+        python -m build
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
