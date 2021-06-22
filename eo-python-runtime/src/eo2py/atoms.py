@@ -3,6 +3,7 @@ from abc import abstractmethod
 from functools import partial
 from typing import List
 
+
 class EObase:
     @abstractmethod
     def dataize(self) -> EObase:
@@ -55,7 +56,7 @@ class EOnumber(EObase, ):
         self.mul = partial(EOnumber_EOmul, self)
         self.leq = partial(EOnumber_EOleq, self)
 
-    def dataize(self):
+    def dataize(self) -> EOnumber:
         return self
 
     def data(self):
@@ -92,7 +93,7 @@ class EObool(EObase, ):
         assert self.value == "true" or self.value == "false"
         self.If = partial(EObool_EOIf, self)
 
-    def dataize(self):
+    def dataize(self) -> EObool:
         return self
 
     def data(self):
@@ -114,7 +115,7 @@ class EOnumber_EOadd(EOnumber, ):
         self.parent = parent
         self.other = other
 
-    def dataize(self):
+    def dataize(self) -> EOnumber:
         return self.parent.dataize() + self.other.dataize()
 
 
@@ -124,7 +125,7 @@ class EOnumber_EOsub(EOnumber, ):
         self.parent = parent
         self.other = other
 
-    def dataize(self):
+    def dataize(self) -> EOnumber:
         return self.parent.dataize() - self.other.dataize()
 
 
@@ -134,7 +135,7 @@ class EOnumber_EOmul(EOnumber, ):
         self.parent = parent
         self.other = other
 
-    def dataize(self):
+    def dataize(self) -> EOnumber:
         return self.parent.dataize() * self.other.dataize()
 
 
@@ -145,7 +146,7 @@ class EObool_EOIf(EObool, ):
         self.iftrue = iftrue
         self.iffalse = iffalse
 
-    def dataize(self):
+    def dataize(self) -> EObase:
         return self.iftrue.dataize() if self.parent.dataize() else self.iffalse.dataize()
 
 
@@ -254,4 +255,3 @@ def lazy_property(fn):
         return getattr(self, attr)
 
     return _lazy_property
-

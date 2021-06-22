@@ -60,8 +60,6 @@ def test_stdout(capsys):
     assert capsys.readouterr().out == "Test\n"
 
 
-
-
 def test_lazy_property():
     class A:
         @lazy_property
