@@ -5,14 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.eolang</groupId>
-  <artifactId>eo-runtime-python</artifactId>
+  <artifactId>eo-python</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>eo2py-maven-plugin</module>
   </modules>
 
-  <name>eo-runtime-python</name>
+  <name>eo-python</name>
   <url>https://github.com/nikololiahim/eo-python</url>
 
   <properties>
