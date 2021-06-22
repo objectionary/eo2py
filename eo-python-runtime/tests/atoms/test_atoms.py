@@ -13,6 +13,13 @@ def test_error():
         DataizationError().dataize()
 
 
+def test_atom():
+    with pytest.raises(NotImplementedError):
+        Atom().dataize()
+    with pytest.raises(NotImplementedError):
+        Atom().data()
+
+
 @pytest.mark.parametrize("a", list(range(1, 10)))
 @pytest.mark.parametrize("b", list(range(1, 10)))
 def test_number(a, b):
@@ -21,29 +28,29 @@ def test_number(a, b):
     assert Number(a) + Number(b) == Number(a).Add(Number(b)).dataize() == Number(a + b)
     assert Number(a) * Number(b) == Number(a).Mul(Number(b)).dataize() == Number(a * b)
     assert (
-        Number(a) ** Number(b)
-        == Number(a).Pow(Number(b)).dataize()
-        == Number(math.pow(a, b))
+            Number(a) ** Number(b)
+            == Number(a).Pow(Number(b)).dataize()
+            == Number(math.pow(a, b))
     )
     assert (
-        (Number(a) < Number(b))
-        == Number(a).Less(Number(b)).dataize()
-        == Boolean("true" if a < b else "false")
+            (Number(a) < Number(b))
+            == Number(a).Less(Number(b)).dataize()
+            == Boolean("true" if a < b else "false")
     )
     assert (
-        (Number(a) <= Number(b))
-        == Number(a).Leq(Number(b)).dataize()
-        == Boolean("true" if a <= b else "false")
+            (Number(a) <= Number(b))
+            == Number(a).Leq(Number(b)).dataize()
+            == Boolean("true" if a <= b else "false")
     )
 
 
 def test_string():
     value = "String"
     assert (
-        str(String(value))
-        == str(String(value).dataize())
-        == String(value).data()
-        == value
+            str(String(value))
+            == str(String(value).dataize())
+            == String(value).data()
+            == value
     )
 
 
@@ -63,6 +70,8 @@ def test_bool():
     assert false == Boolean("FALSE") == Boolean("False") == Boolean("\t\rFalse")
     with pytest.raises(AssertionError) as e:
         false = Boolean("string")
+    with pytest.raises(AttributeError) as e:
+        false = Boolean(123)
     assert true and not false
     assert str(true) == "Boolean(True)"
     assert str(false) == "Boolean(False)"
