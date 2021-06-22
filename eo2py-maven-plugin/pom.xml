@@ -12,7 +12,7 @@
 
   <name>eo2py-maven-plugin Maven Plugin</name>
 
-  <url>https://github.com/nikololiahim/eo-runtime-python/tree/main/eo2py-maven-plugin</url>
+  <url>https://github.com/nikololiahim/eo-python/tree/main/eo2py-maven-plugin</url>
 
   <prerequisites>
     <maven>${maven.version}</maven>
