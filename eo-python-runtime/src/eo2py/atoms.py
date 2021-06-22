@@ -1,34 +1,52 @@
-from __future__ import annotations
 from abc import abstractmethod
 from functools import partial
-from typing import List
+from typing import List, Union, Optional
 
 
-class EObase:
+class Object:
     @abstractmethod
-    def dataize(self) -> EObase:
+    def dataize(self) -> "Atom":
         raise NotImplementedError()
 
 
-class EOattr(EObase, ):
-    def __init__(self, obj, name, *args):
+class Atom(Object):
+    @abstractmethod
+    def dataize(self) -> "Atom":
+        raise NotImplementedError()
+
+    @abstractmethod
+    def data(self) -> object:
+        raise NotImplementedError()
+
+
+class Attribute(
+    Object,
+):
+    def __init__(self, obj: Object, name: str):
         self.obj = obj
         self.name = name
+        self.args: List[Object] = []
+
+    def applied_to(self, *args: Object):
         self.args = args
+        return self
 
     def __str__(self):
         return f"{self.obj}.{self.name}"
 
-    def dataize(self) -> object:
-        attr = None
+    def dataize(self) -> Object:
+        attr: Optional[Object]
         if hasattr(self.obj, self.name):
             print(f"Found .{self.name} in {self.obj}.")
             attr = getattr(self.obj, self.name)
-        elif hasattr(self.obj, '__PHI__') and hasattr(self.obj.__PHI__, self.name):
-            print(f"Did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}.")
+        elif hasattr(self.obj, "__PHI__") and hasattr(self.obj.__PHI__, self.name):
+            print(
+                f"Did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}."
+            )
             attr = getattr(self.obj.__PHI__, self.name)
         else:
             print(f"Attribute .{self.name} was not found. Dataizing {self.obj}...")
+            attr = None
 
         if attr is not None:
             if callable(attr):
@@ -41,117 +59,143 @@ class EOattr(EObase, ):
         return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
 
 
-class EOerror(EObase, ):
-    def dataize(self) -> object:
+class DataizationError(
+    Object,
+):
+    def dataize(self) -> None:
         raise NotImplementedError()
 
 
-class EOnumber(EObase, ):
-    def __init__(self, value: int | float):
+class Number(
+    Atom,
+):
+    def __init__(self, value: Union[int, float]):
         self.value = value
-        self.add = partial(EOnumber_EOadd, self)
-        self.sub = partial(EOnumber_EOsub, self)
-        self.pow = partial(EOnumber_EOpow, self)
-        self.less = partial(EOnumber_EOless, self)
-        self.mul = partial(EOnumber_EOmul, self)
-        self.leq = partial(EOnumber_EOleq, self)
+        self.Add = partial(NumberAdd, self)
+        self.Sub = partial(NumberSub, self)
+        self.Pow = partial(NumberPow, self)
+        self.Less = partial(NumberLess, self)
+        self.Mul = partial(NumberMul, self)
+        self.Leq = partial(NumberLeq, self)
 
-    def dataize(self) -> EOnumber:
+    def dataize(self) -> "Number":
         return self
 
-    def data(self):
+    def data(self) -> Union[int, float]:
         return self.value
 
-    def __eq__(self, other):
-        return EObool("true" if self.value == other.value else "false")
+    def __eq__(self, other) -> "Boolean":
+        return Boolean("true" if self.data() == other.data() else "false")
 
-    def __add__(self, other):
-        return EOnumber(self.value + other.value)
+    def __add__(self, other) -> "Number":
+        return Number(self.value + other.value)
 
-    def __lt__(self, other):
-        return EObool("true" if self.value < other.value else "false")
+    def __lt__(self, other) -> "Boolean":
+        return Boolean("true" if self.data() < other.data() else "false")
 
-    def __le__(self, other):
+    def __le__(self, other) -> "Boolean":
         return self == other or self < other
 
-    def __sub__(self, other):
-        return EOnumber(self.value - other.value)
+    def __sub__(self, other) -> "Number":
+        return Number(self.value - other.value)
 
-    def __pow__(self, power, modulo=None):
-        return EOnumber(self.value ** power.value)
+    def __mul__(self, other) -> "Number":
+        return Number(self.value * other.value)
+
+    def __pow__(self, power, modulo=None) -> "Number":
+        return Number(self.value ** power.value)
 
     def __str__(self):
-        return f"EOnumber({self.value})"
-
-    def __mul__(self, other):
-        return EOnumber(self.value * other.value)
+        return f"Number({self.value})"
 
 
-class EObool(EObase, ):
-    def __init__(self, value: str):
-        self.value = value.lower().strip()
-        assert self.value == "true" or self.value == "false"
-        self.If = partial(EObool_EOIf, self)
+class Boolean(
+    Atom,
+):
+    def __init__(self, value: Union[str, bool]):
+        self.value: bool
+        if isinstance(value, str):
+            value = value.lower().strip()
+            assert value == "true" or value == "false"
+            self.value = value == "true"
+        elif isinstance(value, bool):
+            self.value = value
+        else:
+            raise AttributeError("Boolean: value should be either str or bool")
 
-    def dataize(self) -> EObool:
+        self.If = partial(BooleanIf, self)
+
+    def dataize(self) -> "Boolean":
         return self
 
-    def data(self):
-        return bool(self)
+    def data(self) -> bool:
+        return self.value
 
     def __bool__(self):
-        return self.value == "true"
+        return self.data()
 
     def __str__(self):
-        return f"EObool({bool(self)})"
+        return f"Boolean({bool(self)})"
 
     def __eq__(self, other):
-        return EObool("true" if bool(self) == bool(self) else "false")
+        return Boolean(bool(self) == bool(self))
 
 
-class EOnumber_EOadd(EOnumber, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberAdd(
+    Number,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
         self.other = other
 
-    def dataize(self) -> EOnumber:
+    def dataize(self) -> Number:
         return self.parent.dataize() + self.other.dataize()
 
 
-class EOnumber_EOsub(EOnumber, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberSub(
+    Number,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
         self.other = other
 
-    def dataize(self) -> EOnumber:
+    def dataize(self) -> Number:
         return self.parent.dataize() - self.other.dataize()
 
 
-class EOnumber_EOmul(EOnumber, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberMul(
+    Number,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
         self.other = other
 
-    def dataize(self) -> EOnumber:
+    def dataize(self) -> Number:
         return self.parent.dataize() * self.other.dataize()
 
 
-class EObool_EOIf(EObool, ):
-    def __init__(self, parent: EObool, iftrue: EObase, iffalse: EObase):
+class BooleanIf(
+    Boolean,
+):
+    def __init__(self, parent: Boolean, if_true: Object, if_false: Object):
         super().__init__("false")
         self.parent = parent
-        self.iftrue = iftrue
-        self.iffalse = iffalse
+        self.if_true = if_true
+        self.if_false = if_false
 
-    def dataize(self) -> EObase:
-        return self.iftrue.dataize() if self.parent.dataize() else self.iffalse.dataize()
+    def dataize(self) -> Object:
+        return (
+            self.if_true.dataize() if self.parent.dataize() else self.if_false.dataize()
+        )
 
 
-class EOnumber_EOless(EObool, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberLess(
+    Boolean,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__("false")
         self.parent = parent
         self.other = other
@@ -160,8 +204,10 @@ class EOnumber_EOless(EObool, ):
         return self.parent.dataize() < self.other.dataize()
 
 
-class EOnumber_EOleq(EObool, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberLeq(
+    Boolean,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__("false")
         self.parent = parent
         self.other = other
@@ -170,8 +216,10 @@ class EOnumber_EOleq(EObool, ):
         return self.parent.dataize() <= self.other.dataize()
 
 
-class EOnumber_EOpow(EOnumber, ):
-    def __init__(self, parent: EOnumber, other: EOnumber):
+class NumberPow(
+    Number,
+):
+    def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
         self.other = other
@@ -180,27 +228,27 @@ class EOnumber_EOpow(EOnumber, ):
         return self.parent.dataize() ** self.other.dataize()
 
 
-class EOarray(EObase):
-    def __init__(self, *elements: List[EObase]):
+class Array(Atom):
+    def __init__(self, *elements: Object):
         self.elements = elements
-        self.get = partial(EOarray_EOget, self)
+        self.Get = partial(ArrayGet, self)
 
-    def dataize(self):
+    def dataize(self) -> "Array":
         return self
 
-    def data(self):
-        return [elem.data() for elem in self.elements]
+    def data(self) -> List:
+        return [elem.dataize().data() for elem in self.elements]
 
-    def __getitem__(self, item):
-        if isinstance(item, EOnumber):
+    def __getitem__(self, item: Number):
+        if isinstance(item, Number):
             assert isinstance(item.value, int)
             return self.elements[item.data()]
         else:
-            raise AttributeError(f"{item} is not EOnumber!")
+            raise AttributeError(f"{item} is not an instance of Number!")
 
 
-class EOarray_EOget(EObase):
-    def __init__(self, arr: EOarray, i: EOnumber):
+class ArrayGet(Object):
+    def __init__(self, arr: Array, i: Number):
         self.arr = arr
         self.i = i
 
@@ -208,35 +256,35 @@ class EOarray_EOget(EObase):
         return self.arr[self.i]
 
 
-class EOstring(EObase):
+class String(Atom):
     def __init__(self, value: str):
         self.value = value
 
-    def dataize(self) -> EObase:
+    def dataize(self) -> "String":
         return self
 
-    def data(self):
+    def data(self) -> str:
         return self.value
 
     def __str__(self):
         return self.value
 
 
-class EOsprintf(EOstring):
-    def __init__(self, fmt: EOstring, *args: EObase):
-        super().__init__("ABOBA")
+class FormattedString(String):
+    def __init__(self, fmt: String, *args: Object):
+        super().__init__("")
         self.fmt = fmt
         self.args = args
 
-    def dataize(self) -> EObase:
-        return EOstring(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
+    def dataize(self) -> Object:
+        return String(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
 
 
-class EOstdout(EObase):
-    def __init__(self, text: EOstring):
+class Stdout(Atom):
+    def __init__(self, text: String):
         self.text = text
 
-    def dataize(self) -> EObase:
+    def dataize(self) -> Object:
         print(self.text.dataize())
         return self
 
