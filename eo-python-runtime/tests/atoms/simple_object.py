@@ -1,24 +1,25 @@
 from eo2py.atoms import *
+import pytest
 
 """
 [name] > person
 """
 
 
-class EOperson(EObase):
-    def __init__(self, name: EObase, ):
-        self.name = name
-        self.__PHI__ = EOerror(
-            # "The object cannot be dataized because it doesn't contain @ attribute"
-        )
-        self.__PARENT__ = EOerror(
-            # "This is a toplevel object, it has no parents"
-        )
+class EOperson(Object):
+    def __init__(self, name: Object, ):
+        # Special attributes
+        self.__PHI__ = DataizationError()
+        self.__PARENT__ = DataizationError()
         self.__THIS__ = self
 
-    def generate_attributes(self):
-        pass
+        # Free attributes
+        self.name = name
 
-    def dataize(self):
-        self.generate_attributes()
-        self.__PHI__.dataize()
+    def dataize(self) -> object:
+        return self.__PHI__.dataize()
+
+
+def test_person():
+    with pytest.raises(NotImplementedError) as e:
+        assert EOperson(String("Kate")).dataize()
