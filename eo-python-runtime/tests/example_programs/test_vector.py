@@ -87,8 +87,8 @@ class EOpoint_distance(Object):
                 Attribute(Attribute(self.to, "x"), "Sub").applied_to(
                     Attribute(self.__PARENT__, "x")
                 ),
-                Attribute(Attribute(self.to, "x"), "Sub").applied_to(
-                    Attribute(self.__PARENT__, "x")
+                Attribute(Attribute(self.to, "y"), "Sub").applied_to(
+                    Attribute(self.__PARENT__, "y")
                 ),
             ),
             "length",
