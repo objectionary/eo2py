@@ -19,9 +19,7 @@ class Atom(Object):
         raise NotImplementedError()
 
 
-class Attribute(
-    Object,
-):
+class Attribute(Object):
     def __init__(self, obj: Object, name: str):
         self.obj = obj
         self.name = name
@@ -59,16 +57,12 @@ class Attribute(
         return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
 
 
-class DataizationError(
-    Object,
-):
+class DataizationError(Object):
     def dataize(self) -> None:
         raise NotImplementedError()
 
 
-class Number(
-    Atom,
-):
+class Number(Atom):
     def __init__(self, value: Union[int, float]):
         self.value = value
         self.Add = partial(NumberAdd, self)
@@ -109,9 +103,7 @@ class Number(
         return f"Number({self.value})"
 
 
-class Boolean(
-    Atom,
-):
+class Boolean(Atom):
     def __init__(self, value: Union[str, bool]):
         self.value: bool
         if isinstance(value, str):
@@ -141,9 +133,7 @@ class Boolean(
         return Boolean(bool(self) == bool(self))
 
 
-class NumberAdd(
-    Number,
-):
+class NumberAdd(Number):
     def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
@@ -153,9 +143,7 @@ class NumberAdd(
         return self.parent.dataize() + self.other.dataize()
 
 
-class NumberSub(
-    Number,
-):
+class NumberSub(Number):
     def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
@@ -165,9 +153,7 @@ class NumberSub(
         return self.parent.dataize() - self.other.dataize()
 
 
-class NumberMul(
-    Number,
-):
+class NumberMul(Number):
     def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
@@ -177,9 +163,7 @@ class NumberMul(
         return self.parent.dataize() * self.other.dataize()
 
 
-class BooleanIf(
-    Boolean,
-):
+class BooleanIf(Boolean):
     def __init__(self, parent: Boolean, if_true: Object, if_false: Object):
         super().__init__("false")
         self.parent = parent
@@ -192,9 +176,7 @@ class BooleanIf(
         )
 
 
-class NumberLess(
-    Boolean,
-):
+class NumberLess(Boolean):
     def __init__(self, parent: Number, other: Number):
         super().__init__("false")
         self.parent = parent
@@ -204,9 +186,7 @@ class NumberLess(
         return self.parent.dataize() < self.other.dataize()
 
 
-class NumberLeq(
-    Boolean,
-):
+class NumberLeq(Boolean):
     def __init__(self, parent: Number, other: Number):
         super().__init__("false")
         self.parent = parent
@@ -216,9 +196,7 @@ class NumberLeq(
         return self.parent.dataize() <= self.other.dataize()
 
 
-class NumberPow(
-    Number,
-):
+class NumberPow(Number):
     def __init__(self, parent: Number, other: Number):
         super().__init__(0)
         self.parent = parent
