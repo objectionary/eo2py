@@ -1,4 +1,5 @@
-# Python Runtime for [EO](https://github.com/cqfn/eo)
+# Python runtime for [EO](https://github.com/cqfn/eo)
+A suite of Python objects necessary to execute Python code created by `eo2py-maven-plugin`.
 
 ## How to use
 Install from `pip` repository:
