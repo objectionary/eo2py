@@ -54,6 +54,8 @@ class Attribute(Object):
                 print(f"Dataizing {attr}, no args needed.")
                 return attr.dataize()
 
+        if hasattr(self.obj, "__PHI__") and hasattr(self.obj.__PHI__, "__PHI__"):
+            return Attribute(self.obj.__PHI__, self.name).dataize()
         return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
 
 
