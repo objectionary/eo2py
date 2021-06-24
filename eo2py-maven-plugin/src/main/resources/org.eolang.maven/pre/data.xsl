@@ -32,22 +32,22 @@ SOFTWARE.
         <xsl:attribute name="python-type">
           <xsl:choose>
             <xsl:when test="@data='string'">
-              <xsl:text>EOString</xsl:text>
+              <xsl:text>String</xsl:text>
             </xsl:when>
             <xsl:when test="@data='regex'">
-              <xsl:text>EORegex</xsl:text>
+              <xsl:text>Regex</xsl:text>
             </xsl:when>
             <xsl:when test="@data='char'">
-              <xsl:text>EOString</xsl:text>
+              <xsl:text>String</xsl:text>
             </xsl:when>
             <xsl:when test="@data='float'">
-              <xsl:text>EOFloat</xsl:text>
+              <xsl:text>Number</xsl:text>
             </xsl:when>
             <xsl:when test="@data='int'">
-              <xsl:text>EOInt</xsl:text>
+              <xsl:text>Number</xsl:text>
             </xsl:when>
             <xsl:when test="@data='bool'">
-              <xsl:text>EOBoolean</xsl:text>
+              <xsl:text>Boolean</xsl:text>
             </xsl:when>
             <xsl:otherwise>
               <xsl:message terminate="yes">
@@ -105,14 +105,6 @@ SOFTWARE.
             <xsl:value-of select="text()"/>
             <xsl:text>"</xsl:text>
           </xsl:when>
-<!--          <xsl:when test="@data='int'">-->
-<!--            <xsl:value-of select="text()"/>-->
-<!--            <xsl:text>L</xsl:text>-->
-<!--          </xsl:when>-->
-<!--          <xsl:when test="@data='float'">-->
-<!--            <xsl:value-of select="text()"/>-->
-<!--            <xsl:text>d</xsl:text>-->
-<!--          </xsl:when>-->
           <xsl:otherwise>
             <xsl:value-of select="text()"/>
           </xsl:otherwise>

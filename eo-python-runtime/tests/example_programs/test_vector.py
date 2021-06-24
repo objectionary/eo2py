@@ -39,12 +39,11 @@ from eo2py.atoms import *
 """
 
 
-class vector(EObase):
-
+class EOvector(Object):
     def __init__(self, dx, dy):
         # Special attributes
-        self.__PHI__ = EOerror()
-        self.__PARENT__ = EOerror()
+        self.__PHI__ = DataizationError()
+        self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
@@ -54,15 +53,13 @@ class vector(EObase):
     @property
     def length(self):
         # Bound attributes
-        return EOattr(
-            EOattr(
-                EOattr(self.dx, 'pow', EOnumber(2)),
-                'add',
-                EOattr(self.dy, 'pow', EOnumber(2))
-            ),
-            'pow',
-            EOnumber(0.5)
-        )
+        return Attribute(
+            Attribute(
+                Attribute(self.dx, "Pow").applied_to(Number(2)),
+                "Add",
+            ).applied_to(Attribute(self.dy, "Pow").applied_to(Number(2))),
+            "Pow",
+        ).applied_to(Number(0.5))
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
@@ -72,8 +69,7 @@ class vector(EObase):
 
 
 # Inner abstract object
-class point_distance(EObase):
-
+class EOpoint_distance(Object):
     def __init__(self, __PARENT__, to):
         # Special attributes
         super().__init__()
@@ -86,12 +82,16 @@ class point_distance(EObase):
     @property
     def __PHI__(self):
         # Bound attributes
-        return EOattr(
-            vector(
-                EOattr(EOattr(self.to, 'x'), 'sub', EOattr(self.__PARENT__, 'x')),
-                EOattr(EOattr(self.to, 'x'), 'sub', EOattr(self.__PARENT__, 'x'))
+        return Attribute(
+            EOvector(
+                Attribute(Attribute(self.to, "x"), "Sub").applied_to(
+                    Attribute(self.__PARENT__, "x")
+                ),
+                Attribute(Attribute(self.to, "y"), "Sub").applied_to(
+                    Attribute(self.__PARENT__, "y")
+                ),
             ),
-            'length'
+            "length",
         )
 
     def dataize(self) -> object:
@@ -99,12 +99,12 @@ class point_distance(EObase):
 
 
 # Abstract object is assigned just as attribute
-class point(EObase):
+class EOpoint(Object):
     def __init__(self, x, y):
         # Special attributes
         super().__init__()
-        self.__PHI__ = EOerror()
-        self.__PARENT__ = EOerror()
+        self.__PHI__ = DataizationError()
+        self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
@@ -114,7 +114,7 @@ class point(EObase):
     @property
     def distance(self):
         # Bound attributes
-        return partial(point_distance, self)
+        return partial(EOpoint_distance, self)
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
@@ -123,34 +123,25 @@ class point(EObase):
         return f"point(x={self.x}, y={self.y})"
 
 
-class circle_is_inside(EObase):
+class EOcircle_is_inside(Object):
     def __init__(self, __PARENT__, p):
         self.p = p
         self.__PARENT__ = __PARENT__
 
     @property
     def __PHI__(self):
-        return EOattr(
-            EOattr(
-                self.__PARENT__,
-                'distance',
-                self.p
-            ),
-            'leq',
-            EOattr(
-                self.__PARENT__,
-                'radius'
-            )
-        )
+        return Attribute(
+            Attribute(self.__PARENT__, "distance").applied_to(self.p), "Leq"
+        ).applied_to(Attribute(self.__PARENT__, "radius"))
 
-    def dataize(self) -> EObase:
+    def dataize(self) -> Object:
         return self.__PHI__.dataize()
 
     def __str__(self):
         return f"{self.__PARENT__}.is_inside(p={self.p})"
 
 
-class circle(EObase):
+class EOcircle(Object):
     def __init__(self, center, radius):
         self.center = center
         self.radius = radius
@@ -161,20 +152,20 @@ class circle(EObase):
 
     @property
     def is_inside(self):
-        return partial(circle_is_inside, self)
+        return partial(EOcircle_is_inside, self)
 
-    def dataize(self) -> EObase:
+    def dataize(self) -> Object:
         return self.__PHI__.dataize()
 
     def __str__(self):
         return f"circle(center={self.center}, radius={self.radius})"
 
 
-class app(EObase):
+class EOapp(Object):
     def __init__(self, *args, **kwargs):
         # Special attributes
         super().__init__()
-        self.__PARENT__ = EOerror()
+        self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
@@ -183,17 +174,12 @@ class app(EObase):
     @property
     def __PHI__(self):
         # Bound attributes
-        return EOstdout(
-            EOsprintf(
-                "%s\n",
-                EOattr(
-                    circle(
-                        point(EOnumber(1), EOnumber(1)),
-                        EOnumber(2)
-                    ),
-                    'is_inside',
-                    point(EOnumber(22), EOnumber(1))
-                )
+        return Stdout(
+            FormattedString(
+                String("%s\n"),
+                Attribute(
+                    EOcircle(EOpoint(Number(1), Number(1)), Number(2)), "is_inside"
+                ).applied_to(EOpoint(Number(22), Number(1))),
             )
         )
 
@@ -202,4 +188,4 @@ class app(EObase):
 
 
 def test_vector():
-    assert app().dataize()
+    assert EOapp().dataize()
