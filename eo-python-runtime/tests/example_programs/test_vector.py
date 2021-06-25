@@ -40,15 +40,23 @@ from eo2py.atoms import *
 
 
 class EOvector(Object):
-    def __init__(self, dx, dy):
+    def __init__(self):
         # Special attributes
         self.__PHI__ = DataizationError()
         self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
-        self.dx = dx
-        self.dy = dy
+        self.attributes = ["dx", "dy"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
     def length(self):
@@ -70,28 +78,34 @@ class EOvector(Object):
 
 # Inner abstract object
 class EOpoint_distance(Object):
-    def __init__(self, __PARENT__, to):
+    def __init__(self, __PARENT__):
         # Special attributes
         super().__init__()
         self.__PARENT__ = __PARENT__
         self.__SELF__ = self
 
         # Free attributes
-        self.to = to
+        self.attributes = ["to"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
     def __PHI__(self):
         # Bound attributes
         return Attribute(
-            EOvector(
-                Attribute(Attribute(self.to, "x"), "Sub").applied_to(
-                    Attribute(self.__PARENT__, "x")
-                ),
-                Attribute(Attribute(self.to, "y"), "Sub").applied_to(
-                    Attribute(self.__PARENT__, "y")
-                ),
-            ),
-            "length",
+            EOvector()
+                (Attribute(Attribute(self.to, "x"), "Sub").applied_to(
+                    Attribute(self.__PARENT__, "x")))
+                (Attribute(Attribute(self.to, "y"), "Sub").applied_to(
+                    Attribute(self.__PARENT__, "y"))),
+            "length"
         )
 
     def dataize(self) -> object:
@@ -100,20 +114,26 @@ class EOpoint_distance(Object):
 
 # Abstract object is assigned just as attribute
 class EOpoint(Object):
-    def __init__(self, x, y):
+    def __init__(self):
         # Special attributes
-        super().__init__()
         self.__PHI__ = DataizationError()
         self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
-        self.x = x
-        self.y = y
+        self.attributes = ["x", "y"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
     def distance(self):
-        # Bound attributes
         return partial(EOpoint_distance, self)
 
     def dataize(self) -> object:
@@ -124,9 +144,20 @@ class EOpoint(Object):
 
 
 class EOcircle_is_inside(Object):
-    def __init__(self, __PARENT__, p):
-        self.p = p
+
+    def __init__(self, __PARENT__):
         self.__PARENT__ = __PARENT__
+        # Free attributes
+        self.attributes = ["p"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
     def __PHI__(self):
@@ -142,9 +173,18 @@ class EOcircle_is_inside(Object):
 
 
 class EOcircle(Object):
-    def __init__(self, center, radius):
-        self.center = center
-        self.radius = radius
+    def __init__(self):
+        # Free attributes
+        self.attributes = ["center", "radius"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
     def __PHI__(self):
@@ -162,25 +202,30 @@ class EOcircle(Object):
 
 
 class EOapp(Object):
-    def __init__(self, *args, **kwargs):
-        # Special attributes
-        super().__init__()
+    def __init__(self):
         self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
         # Free attributes
-        self.args = args
+        self.attributes = ["args"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 0:
+            setattr(self, self.attributes[self.application_counter], [])
+            self.application_counter += 1
+        getattr(self, self.attributes[0]).append(arg)
+        return self
 
     @property
     def __PHI__(self):
         # Bound attributes
-        return Stdout(
-            FormattedString(
-                String("%s\n"),
-                Attribute(
-                    EOcircle(EOpoint(Number(1), Number(1)), Number(2)), "is_inside"
-                ).applied_to(EOpoint(Number(22), Number(1))),
-            )
+        return Stdout()(
+            FormattedString()
+                (String("%s\n"))
+                (Attribute(
+                    EOcircle()(EOpoint()(Number(1))(Number(1)))(Number(2)), "is_inside"
+                ).applied_to(EOpoint()(Number(22))(Number(1))))
         )
 
     def dataize(self) -> object:
@@ -188,4 +233,5 @@ class EOapp(Object):
 
 
 def test_vector():
+    assert EOvector()(Number(1))(Number(1))
     assert EOapp().dataize()
