@@ -101,9 +101,9 @@ class EOpoint_distance(Object):
         return Attribute(
             EOvector()
                 (Attribute(Attribute(self.attr_to, "x"), "sub")(
-                    Attribute(self.attr__parent, "x")))
+                Attribute(self.attr__parent, "x")))
                 (Attribute(Attribute(self.attr_to, "y"), "sub")(
-                    Attribute(self.attr__parent, "y"))),
+                Attribute(self.attr__parent, "y"))),
             "length"
         )
 
@@ -160,9 +160,8 @@ class EOcircle_is_inside(Object):
 
     @property
     def attr__phi(self):
-        return Attribute(
-            Attribute(self.attr__parent, "distance")(self.attr_p), "leq"
-        )(Attribute(self.attr__parent, "radius"))
+        return (Attribute((Attribute((self.attr__parent), "distance")()(self.attr_p)), "leq")()(
+            Attribute((self.attr__parent), "radius")()))
 
     def dataize(self) -> Object:
         return self.attr__phi.dataize()
@@ -201,34 +200,19 @@ class EOcircle(Object):
 
 
 class EOapp(Object):
-    def __init__(self):
+
+    def __init__(self, *args: Object, ):
+        self.args = args
         self.attr__parent = DataizationError()
-        self.attr__self = self
 
-        # Free attributes
-        self.attributes = ["args"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter == 0:
-            setattr(self, "attr_" + self.attributes[self.application_counter], [])
-            self.application_counter += 1
-        getattr(self, "attr_" + self.attributes[0]).append(arg)
-        return self
+    def dataize(self):
+        return self.attr__phi.dataize()
 
     @property
     def attr__phi(self):
-        # Bound attributes
-        return Stdout()(
-            Sprintf()
-                (String("%s\n"))
-                (Attribute(
-                    EOcircle()(EOpoint()(Number(1))(Number(1)))(Number(2)), "is_inside"
-                )(EOpoint()(Number(22))(Number(1))))
-        )
-
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
+        return (Stdout()(Sprintf()(String("%s\n"))(
+            Attribute((EOcircle()(EOpoint()(Number(1.0))(Number(1.0)))(Number(2.0))), "is_inside")()(
+                EOpoint()(Number(1.0))(Number(1.0))))))
 
 
 def test_vector():
