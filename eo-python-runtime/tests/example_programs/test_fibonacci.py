@@ -15,7 +15,7 @@ from eo2py.atoms import *
 
 class EOfibonacci(Object):
     def __init__(self):
-        self.__PARENT__ = DataizationError()
+        self.attr__parent = DataizationError()
         self.__THIS__ = self
 
         # Free attributes
@@ -26,26 +26,26 @@ class EOfibonacci(Object):
         if self.application_counter >= len(self.attributes):
             raise ApplicationError(arg)
         else:
-            setattr(self, self.attributes[self.application_counter], arg)
+            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
             self.application_counter += 1
         return self
 
 
     @property
-    def __PHI__(self):
+    def attr__phi(self):
         return Attribute(
-            Attribute(self.n, "Less")(Number(2)),
-            "If",
+            Attribute(self.attr_n, "less")(Number(2)),
+            "if",
         )()(
-            self.n)(
+            self.attr_n)(
             Attribute(
-                EOfibonacci()(Attribute(self.n, "Sub")(Number(1))),
-                "Add",
-            )(EOfibonacci()(Attribute(self.n, "Sub")(Number(2)))),
+                EOfibonacci()(Attribute(self.attr_n, "sub")(Number(1))),
+                "add",
+            )(EOfibonacci()(Attribute(self.attr_n, "sub")(Number(2)))),
         )
 
     def dataize(self):
-        return self.__PHI__.dataize()
+        return self.attr__phi.dataize()
 
 
 def test_fibonacci():

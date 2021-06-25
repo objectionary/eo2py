@@ -20,23 +20,23 @@ class EOappArray(Object):
 
     def __call__(self, arg: Object):
         if self.application_counter == 0:
-            setattr(self, self.attributes[self.application_counter], [])
+            setattr(self, "attr_" + self.attributes[self.application_counter], [])
             self.application_counter += 1
-        getattr(self, self.attributes[0]).append(arg)
+        getattr(self, "attr_" + self.attributes[0]).append(arg)
         return self
 
     @property
-    def __PHI__(self):
+    def attr__phi(self):
         return Stdout()(
                 Sprintf()
                 (String("%d"))
                 (Attribute(
-                    reduce(lambda obj, arg: obj(arg), self.args, Array()),
-                    "Get")()(Number(3)))
+                    reduce(lambda obj, arg: obj(arg), self.attr_args, Array()),
+                    "get")()(Number(3)))
                 )
 
     def dataize(self):
-        return self.__PHI__.dataize()
+        return self.attr__phi.dataize()
 
 
 def test_simple_array():

@@ -29,22 +29,25 @@ class Attribute(Object):
         self.args.extend(args)
         return self
 
+    def inner_name(self):
+        return "attr_" + self.name
+
     def __str__(self):
-        return f"{self.obj}.{self.name}"
+        return f"{self.obj}.{self.inner_name()}"
 
     def dataize(self) -> Object:
         attr: Optional[Object]
-        if hasattr(self.obj, self.name):
-            print(f"Found .{self.name} in {self.obj}.")
-            attr = getattr(self.obj, self.name)
-        elif hasattr(self.obj, "__PHI__"):
+        if hasattr(self.obj, self.inner_name()):
+            print(f"Found .{self.inner_name()} in {self.obj}.")
+            attr = getattr(self.obj, self.inner_name())
+        elif hasattr(self.obj, "attr__phi"):
             print(
-                f"Did not find .{self.name} in {self.obj}, searching for .{self.name} in {self.obj}'s "
-                f"__PHI__ attribute: {self.obj.__PHI__}."
+                f"Did not find .{self.inner_name()} in {self.obj}, searching for .{self.inner_name()} in {self.obj}'s "
+                f"phi attribute: {self.obj.attr__phi}."
             )
-            attr = Attribute(self.obj.__PHI__, self.name)
+            attr = Attribute(self.obj.attr__phi, self.name)
         else:
-            print(f"Attribute .{self.name} was not found.")
+            print(f"Attribute .{self.inner_name()} was not found.")
             attr = None
 
         if attr is not None:
@@ -59,7 +62,7 @@ class Attribute(Object):
                 return attr.dataize()
 
         print(f"Dataizing {self.obj}...")
-        attr = getattr(self.obj.dataize(), self.name)()
+        attr = getattr(self.obj.dataize(), self.inner_name())()
         for arg in self.args:
             attr = attr(arg)
         return attr.dataize()
@@ -78,12 +81,12 @@ class ApplicationError(Exception):
 class Number(Atom):
     def __init__(self, value: Union[int, float]):
         self.value = value
-        self.Add = partial(NumberAdd, self)
-        self.Sub = partial(NumberSub, self)
-        self.Pow = partial(NumberPow, self)
-        self.Less = partial(NumberLess, self)
-        self.Mul = partial(NumberMul, self)
-        self.Leq = partial(NumberLeq, self)
+        self.attr_add = partial(NumberAdd, self)
+        self.attr_sub = partial(NumberSub, self)
+        self.attr_pow = partial(NumberPow, self)
+        self.attr_less = partial(NumberLess, self)
+        self.attr_mul = partial(NumberMul, self)
+        self.attr_leq = partial(NumberLeq, self)
 
     def dataize(self) -> "Number":
         return self
@@ -128,7 +131,7 @@ class Boolean(Atom):
         else:
             raise AttributeError("Boolean: value should be either str or bool")
 
-        self.If = partial(BooleanIf, self)
+        self.attr_if = partial(BooleanIf, self)
 
     def dataize(self) -> "Boolean":
         return self
@@ -290,7 +293,7 @@ class NumberPow(Number):
 
 class Array(Atom):
     def __init__(self):
-        self.Get = partial(ArrayGet, self)
+        self.attr_get = partial(ArrayGet, self)
         self.attributes = ["elements"]
         self.application_counter = 0
 

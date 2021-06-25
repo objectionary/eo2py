@@ -24,22 +24,22 @@ def test_atom():
 @pytest.mark.parametrize("b", list(range(1, 10)))
 def test_number(a, b):
     assert Number(a) == Number(Number(a).data())
-    assert Number(a) - Number(b) == Number(a).Sub()(Number(b)).dataize() == Number(a - b)
-    assert Number(a) + Number(b) == Number(a).Add()(Number(b)).dataize() == Number(a + b)
-    assert Number(a) * Number(b) == Number(a).Mul()(Number(b)).dataize() == Number(a * b)
+    assert Number(a) - Number(b) == Number(a).attr_sub()(Number(b)).dataize() == Number(a - b)
+    assert Number(a) + Number(b) == Number(a).attr_add()(Number(b)).dataize() == Number(a + b)
+    assert Number(a) * Number(b) == Number(a).attr_mul()(Number(b)).dataize() == Number(a * b)
     assert (
             Number(a) ** Number(b)
-            == Number(a).Pow()(Number(b)).dataize()
+            == Number(a).attr_pow()(Number(b)).dataize()
             == Number(math.pow(a, b))
     )
     assert (
             (Number(a) < Number(b))
-            == Number(a).Less()(Number(b)).dataize()
+            == Number(a).attr_less()(Number(b)).dataize()
             == Boolean("true" if a < b else "false")
     )
     assert (
             (Number(a) <= Number(b))
-            == Number(a).Leq()(Number(b)).dataize()
+            == Number(a).attr_leq()(Number(b)).dataize()
             == Boolean("true" if a <= b else "false")
     )
 
@@ -96,19 +96,19 @@ def test_lazy_property():
 
 
 def attribute_test():
-    assert Attribute(Number(2), "Add")(Number(2)).dataize() == Number(4)
-    assert Attribute(Number(2), "Add")(
-        Attribute(Number(2), "Add")(Number(2))
+    assert Attribute(Number(2), "add")(Number(2)).dataize() == Number(4)
+    assert Attribute(Number(2), "add")(
+        Attribute(Number(2), "add")(Number(2))
     ).dataize() == Number(6)
     assert Attribute(
-        Attribute(Number(2), "Add")(Number(2)), "Add"
+        Attribute(Number(2), "add")(Number(2)), "add"
     )(Number(2)).dataize() == Number(6)
     dx = Number(2)
     dy = Number(2)
-    dx_squared = Attribute(dx, "Pow")()(Number(2))
-    dy_squared = Attribute(dy, "Pow")()(Number(2))
-    dx_squared_plus_dy_squared = Attribute(dx_squared, "Add")(dy_squared)
+    dx_squared = Attribute(dx, "pow")()(Number(2))
+    dy_squared = Attribute(dy, "pow")()(Number(2))
+    dx_squared_plus_dy_squared = Attribute(dx_squared, "add")(dy_squared)
     sqrt_dx_squared_plus_dy_squared = Attribute(
-        dx_squared_plus_dy_squared, "Pow"
+        dx_squared_plus_dy_squared, "pow"
     )(Number(0.5))
     assert sqrt_dx_squared_plus_dy_squared.dataize() == Number(8 ** 0.5)
