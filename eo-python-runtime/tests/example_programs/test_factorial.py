@@ -29,7 +29,7 @@ from eo2py.atoms import *
 class EOfactorial(Object):
     def __init__(self):
         self.attr__parent = self
-        self.__THIS__ = self
+        self.attr__self = self
 
         # Free attributes
         self.attributes = ["n"]
