@@ -44,7 +44,7 @@ class Attribute(Object):
             )
             attr = Attribute(self.obj.__PHI__, self.name)
         else:
-            print(f"Attribute .{self.name} was not found. Dataizing {self.obj}...")
+            print(f"Attribute .{self.name} was not found.")
             attr = None
 
         if attr is not None:
@@ -58,9 +58,11 @@ class Attribute(Object):
                 print(f"Dataizing {attr}, no args needed.")
                 return attr.dataize()
 
-        if hasattr(self.obj, "__PHI__") and hasattr(self.obj.__PHI__, "__PHI__"):
-            return Attribute(self.obj.__PHI__, self.name).dataize()
-        return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
+        print(f"Dataizing {self.obj}...")
+        attr = getattr(self.obj.dataize(), self.name)()
+        for arg in self.args:
+            attr = attr(arg)
+        return attr.dataize()
 
 
 class DataizationError(Object):
