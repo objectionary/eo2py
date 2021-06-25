@@ -13,25 +13,35 @@ from eo2py.atoms import *
 """
 
 
-# TODO: figure out type resolution
 class EOfibonacci(Object):
-    def __init__(self, n: Object):
-        # super().__init__(0)
-        self.n = n
+    def __init__(self):
         self.__PARENT__ = DataizationError()
         self.__THIS__ = self
+
+        # Free attributes
+        self.attributes = ["n"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
+
 
     @property
     def __PHI__(self):
         return Attribute(
-            Attribute(self.n, "Less").applied_to(Number(2)),
+            Attribute(self.n, "Less")(Number(2)),
             "If",
-        ).applied_to(
-            self.n,
+        )()(
+            self.n)(
             Attribute(
-                EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(1))),
+                EOfibonacci()(Attribute(self.n, "Sub")(Number(1))),
                 "Add",
-            ).applied_to(EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(2)))),
+            )(EOfibonacci()(Attribute(self.n, "Sub")(Number(2)))),
         )
 
     def dataize(self):
@@ -39,5 +49,5 @@ class EOfibonacci(Object):
 
 
 def test_fibonacci():
-    res = EOfibonacci(Number(10))
+    res = EOfibonacci()(Number(10))
     assert res.dataize() == Number(55)

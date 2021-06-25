@@ -23,13 +23,21 @@ from eo2py.atoms import *
 
 
 class EOa(Object):
-    def __init__(self, a_attr):
+    def __init__(self):
         # Special attributes
         self.__PARENT__ = DataizationError()
         self.__SELF__ = self
-
         # Free attributes
-        self.a_attr = a_attr
+        self.attributes = ["a_attr"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Object:
         return self.__PHI__.dataize()
@@ -46,7 +54,7 @@ class EOb(Object):
 
     @property
     def __PHI__(self):
-        return EOa(String("something"))
+        return EOa()(String("something"))
 
     def dataize(self) -> Object:
         return self.__PHI__.dataize()
@@ -93,18 +101,22 @@ class EOapp(Object):
         self.__PARENT__ = DataizationError()
         self.__SELF__ = self
 
-        # Free attributes
-        self.args = args
+        self.attributes = ["args"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 0:
+            setattr(self, self.attributes[self.application_counter], [])
+            self.application_counter += 1
+        getattr(self, self.attributes[0]).append(arg)
+        return self
 
     @property
     def __PHI__(self):
         # Bound attributes
-        return Stdout(
-            FormattedString(
-                String("%s\n"),
-                Attribute(EOd(), 'a_attr')
+        return Stdout()(
+            Sprintf()(String("%s\n"))(Attribute(EOd(), 'a_attr')())
             )
-        )
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()

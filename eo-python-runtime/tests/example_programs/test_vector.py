@@ -63,11 +63,11 @@ class EOvector(Object):
         # Bound attributes
         return Attribute(
             Attribute(
-                Attribute(self.dx, "Pow").applied_to(Number(2)),
+                Attribute(self.dx, "Pow")(Number(2)),
                 "Add",
-            ).applied_to(Attribute(self.dy, "Pow").applied_to(Number(2))),
+            )(Attribute(self.dy, "Pow")(Number(2))),
             "Pow",
-        ).applied_to(Number(0.5))
+        )(Number(0.5))
 
     def dataize(self) -> object:
         return self.__PHI__.dataize()
@@ -101,9 +101,9 @@ class EOpoint_distance(Object):
         # Bound attributes
         return Attribute(
             EOvector()
-                (Attribute(Attribute(self.to, "x"), "Sub").applied_to(
+                (Attribute(Attribute(self.to, "x"), "Sub")(
                     Attribute(self.__PARENT__, "x")))
-                (Attribute(Attribute(self.to, "y"), "Sub").applied_to(
+                (Attribute(Attribute(self.to, "y"), "Sub")(
                     Attribute(self.__PARENT__, "y"))),
             "length"
         )
@@ -162,8 +162,8 @@ class EOcircle_is_inside(Object):
     @property
     def __PHI__(self):
         return Attribute(
-            Attribute(self.__PARENT__, "distance").applied_to(self.p), "Leq"
-        ).applied_to(Attribute(self.__PARENT__, "radius"))
+            Attribute(self.__PARENT__, "distance")(self.p), "Leq"
+        )(Attribute(self.__PARENT__, "radius"))
 
     def dataize(self) -> Object:
         return self.__PHI__.dataize()
@@ -221,11 +221,11 @@ class EOapp(Object):
     def __PHI__(self):
         # Bound attributes
         return Stdout()(
-            FormattedString()
+            Sprintf()
                 (String("%s\n"))
                 (Attribute(
                     EOcircle()(EOpoint()(Number(1))(Number(1)))(Number(2)), "is_inside"
-                ).applied_to(EOpoint()(Number(22))(Number(1))))
+                )(EOpoint()(Number(22))(Number(1))))
         )
 
     def dataize(self) -> object:
