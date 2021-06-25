@@ -49,6 +49,7 @@ class Attribute(Object):
         if attr is not None:
             if callable(attr):
                 print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
+                print("args", *self.args)
                 return attr(*self.args).dataize()
             else:
                 print(f"Dataizing {attr}, no args needed.")
@@ -62,6 +63,11 @@ class Attribute(Object):
 class DataizationError(Object):
     def dataize(self) -> None:
         raise NotImplementedError()
+
+
+class ApplicationError(Exception):
+    def __init__(self, arg):
+        super().__init__(f"Object cannot be copied with {arg} as argument")
 
 
 class Number(Atom):
@@ -253,18 +259,38 @@ class String(Atom):
 
 
 class FormattedString(String):
-    def __init__(self, fmt: String, *args: Object):
+    def __init__(self):
         super().__init__("")
-        self.fmt = fmt
-        self.args = args
+        self.attributes = ["fmt", "args"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 1:
+            getattr(self, self.attributes[1]).append(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+            setattr(self, self.attributes[self.application_counter], [])
+        return self
 
     def dataize(self) -> Object:
+        print(self.args)
         return String(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
 
 
 class Stdout(Atom):
-    def __init__(self, text: String):
-        self.text = text
+    def __init__(self):
+        # Free attributes
+        self.attributes = ["text"]
+        self.application_counter = 0
+
+    def __call__(self, arg: String):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Object:
         print(self.text.dataize())
