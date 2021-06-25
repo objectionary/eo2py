@@ -7,11 +7,8 @@ from functools import reduce
     sprintf
       "%d"
       get.
-        *
-          5
-          2
-          4
-        0
+        args
+        3
 """
 
 
@@ -33,7 +30,9 @@ class EOappArray(Object):
         return Stdout()(
                 Sprintf()
                 (String("%d"))
-                (Attribute(reduce(lambda obj, arg: obj(arg), self.args, Array()), "Get")()(Number(3)))
+                (Attribute(
+                    reduce(lambda obj, arg: obj(arg), self.args, Array()),
+                    "Get")()(Number(3)))
                 )
 
     def dataize(self):
