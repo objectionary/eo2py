@@ -38,5 +38,6 @@ jobs:
         python -m twine upload \
           --verbose \
           --username __token__ \
+          --repository-url https://upload.pypi.org/legacy/ \
           --password ${{ secrets.EO2PY_PYPI_TOKEN }} \
           dist/*
