@@ -379,7 +379,8 @@ SOFTWARE.
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates select="."/>
+<!--                <xsl:apply-templates select="."/>-->
+                <xsl:text>ABOBA</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
