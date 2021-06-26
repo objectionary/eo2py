@@ -1,6 +1,3 @@
-build
-twine
-bump2version
 pytest >= 6.0.0
 pytest-cov
 pytest-raises
