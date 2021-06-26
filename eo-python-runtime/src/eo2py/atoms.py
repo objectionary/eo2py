@@ -294,14 +294,10 @@ class NumberPow(Number):
 class Array(Atom):
     def __init__(self):
         self.attr_get = partial(ArrayGet, self)
-        self.attributes = ["elements"]
-        self.application_counter = 0
+        self.elements = []
 
     def __call__(self, arg: Object):
-        if self.application_counter == 0:
-            setattr(self, self.attributes[self.application_counter], [])
-            self.application_counter += 1
-        getattr(self, self.attributes[0]).append(arg)
+        self.elements.append(arg)
         return self
 
     def dataize(self) -> "Array":
@@ -311,8 +307,7 @@ class Array(Atom):
         return [elem.dataize().data() for elem in self.elements]
 
     def __getitem__(self, item: Object):
-        if isinstance(item, Number):
-            assert isinstance(item.value, int)
+        if isinstance(item, Object):
             index = item.dataize().data()
             assert isinstance(index, int)
             return self.elements[index]
@@ -336,6 +331,8 @@ class ArrayGet(Object):
         return self
 
     def dataize(self):
+
+
         return self.arr[self.i]
 
 
