@@ -28,7 +28,7 @@ SOFTWARE.
   <artifactId>quick-start</artifactId>
   <version>1.0-SNAPSHOT</version>
   <properties>
-    <eo2py.version>1.0-SNAPSHOT</eo2py.version>
+    <eo2py.version>0.0.4</eo2py.version>
   </properties>
   <build>
     <plugins>
