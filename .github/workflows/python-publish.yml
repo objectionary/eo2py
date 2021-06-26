@@ -25,14 +25,16 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: |
-        cd eo-runtime-python && ls
+        cd eo-python-runtime && ls
         python -m pip install --upgrade pip
         pip install build
     - name: Build package
       run: |
-        cd eo-runtime-python && ls
+        cd eo-python-runtime && ls
         python -m build
     - name: Publish package
+      run: |
+        cd eo-python-runtime && ls
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: __token__
