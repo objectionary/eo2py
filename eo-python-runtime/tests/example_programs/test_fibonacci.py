@@ -13,31 +13,41 @@ from eo2py.atoms import *
 """
 
 
-# TODO: figure out type resolution
 class EOfibonacci(Object):
-    def __init__(self, n: Object):
-        # super().__init__(0)
-        self.n = n
-        self.__PARENT__ = DataizationError()
-        self.__THIS__ = self
+    def __init__(self):
+        self.attr__parent = DataizationError()
+        self.attr__self = self
+
+        # Free attributes
+        self.attributes = ["n"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
+
 
     @property
-    def __PHI__(self):
+    def attr__phi(self):
         return Attribute(
-            Attribute(self.n, "Less").applied_to(Number(2)),
-            "If",
-        ).applied_to(
-            self.n,
+            Attribute(self.attr_n, "less")(Number(2)),
+            "if",
+        )()(
+            self.attr_n)(
             Attribute(
-                EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(1))),
-                "Add",
-            ).applied_to(EOfibonacci(Attribute(self.n, "Sub").applied_to(Number(2)))),
+                EOfibonacci()(Attribute(self.attr_n, "sub")(Number(1))),
+                "add",
+            )(EOfibonacci()(Attribute(self.attr_n, "sub")(Number(2)))),
         )
 
     def dataize(self):
-        return self.__PHI__.dataize()
+        return self.attr__phi.dataize()
 
 
 def test_fibonacci():
-    res = EOfibonacci(Number(10))
+    res = EOfibonacci()(Number(10))
     assert res.dataize() == Number(55)

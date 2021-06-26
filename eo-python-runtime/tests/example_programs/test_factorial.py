@@ -27,43 +27,62 @@ from eo2py.atoms import *
 
 
 class EOfactorial(Object):
-    def __init__(self, n):
-        self.n = n
-        self.__PARENT__ = self
-        self.__THIS__ = self
+    def __init__(self):
+        self.attr__parent = self
+        self.attr__self = self
+
+        # Free attributes
+        self.attributes = ["n"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     @property
-    def __PHI__(self):
+    def attr__phi(self):
         return Attribute(
-            Attribute(self.n, "Less").applied_to(Number(2)),
-            "If",
-        ).applied_to(
-            Number(1),
-            Attribute(self.n, "Mul").applied_to(
-                EOfactorial(Attribute(self.n, "Sub").applied_to(Number(1)))
-            ),
+            Attribute(self.attr_n, "less")(Number(2)),
+            "if")()(
+            Number(1))(
+            Attribute(self.attr_n, "mul")()(
+                EOfactorial()(Attribute(self.attr_n, "sub")()(Number(1)))
+            )
         )
 
     def dataize(self) -> object:
-        return self.__PHI__.dataize()
+        return self.attr__phi.dataize()
 
 
 class EOappFactorial(Object):
-    def __init__(self, *args):
-        self.args = Array(*args)
+    def __init__(self):
+        self.attributes = ["args"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 0:
+            setattr(self, self.attributes[self.application_counter], [])
+            self.application_counter += 1
+        getattr(self, self.attributes[0]).append(arg)
+        return self
 
     @property
     def n(self):
-        return Attribute(self.args, "get").applied_to(Number(0))
+        return Attribute(self.args, "get")(Number(0))
 
     @property
-    def __PHI__(self):
-        return Stdout(FormattedString(String("%d! = %d"), self.n, EOfactorial(self.n)))
+    def attr__phi(self):
+        return Stdout()\
+            (Sprintf()(String("%d! = %d"))(self.n)(EOfactorial()(self.n)))
 
     def dataize(self) -> object:
-        return self.__PHI__.dataize()
+        return self.attr__phi.dataize()
 
 
 def test_factorial():
-    app = EOfactorial(Number(5))
+    app = EOfactorial()(Number(5))
     assert app.dataize() == Number(120)

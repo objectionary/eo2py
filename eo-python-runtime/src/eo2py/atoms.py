@@ -25,38 +25,47 @@ class Attribute(Object):
         self.name = name
         self.args: List[Object] = []
 
-    def applied_to(self, *args: Object):
-        self.args = args
+    def __call__(self, *args: Object):
+        self.args.extend(args)
         return self
 
+    def inner_name(self):
+        return "attr_" + self.name
+
     def __str__(self):
-        return f"{self.obj}.{self.name}"
+        return f"{self.obj}.{self.inner_name()}"
 
     def dataize(self) -> Object:
         attr: Optional[Object]
-        if hasattr(self.obj, self.name):
-            print(f"Found .{self.name} in {self.obj}.")
-            attr = getattr(self.obj, self.name)
-        elif hasattr(self.obj, "__PHI__") and hasattr(self.obj.__PHI__, self.name):
+        if hasattr(self.obj, self.inner_name()):
+            print(f"Found .{self.inner_name()} in {self.obj}.")
+            attr = getattr(self.obj, self.inner_name())
+        elif hasattr(self.obj, "attr__phi"):
             print(
-                f"Did not find .{self.name} in {self.obj}, found .{self.name} in {self.obj.__PHI__}."
+                f"Did not find .{self.inner_name()} in {self.obj}, searching for .{self.inner_name()} in {self.obj}'s "
+                f"phi attribute: {self.obj.attr__phi}."
             )
-            attr = getattr(self.obj.__PHI__, self.name)
+            attr = Attribute(self.obj.attr__phi, self.name)
         else:
-            print(f"Attribute .{self.name} was not found. Dataizing {self.obj}...")
+            print(f"Attribute .{self.inner_name()} was not found.")
             attr = None
 
         if attr is not None:
             if callable(attr):
                 print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
-                return attr(*self.args).dataize()
+                res = attr()
+                for arg in self.args:
+                    res = res(arg)
+                return res.dataize()
             else:
                 print(f"Dataizing {attr}, no args needed.")
                 return attr.dataize()
 
-        if hasattr(self.obj, "__PHI__") and hasattr(self.obj.__PHI__, "__PHI__"):
-            return Attribute(self.obj.__PHI__, self.name).dataize()
-        return getattr(self.obj.dataize(), self.name)(*self.args).dataize()
+        print(f"Dataizing {self.obj}...")
+        attr = getattr(self.obj.dataize(), self.inner_name())()
+        for arg in self.args:
+            attr = attr(arg)
+        return attr.dataize()
 
 
 class DataizationError(Object):
@@ -64,15 +73,20 @@ class DataizationError(Object):
         raise NotImplementedError()
 
 
+class ApplicationError(Exception):
+    def __init__(self, arg):
+        super().__init__(f"Object cannot be copied with {arg} as argument")
+
+
 class Number(Atom):
     def __init__(self, value: Union[int, float]):
         self.value = value
-        self.Add = partial(NumberAdd, self)
-        self.Sub = partial(NumberSub, self)
-        self.Pow = partial(NumberPow, self)
-        self.Less = partial(NumberLess, self)
-        self.Mul = partial(NumberMul, self)
-        self.Leq = partial(NumberLeq, self)
+        self.attr_add = partial(NumberAdd, self)
+        self.attr_sub = partial(NumberSub, self)
+        self.attr_pow = partial(NumberPow, self)
+        self.attr_less = partial(NumberLess, self)
+        self.attr_mul = partial(NumberMul, self)
+        self.attr_leq = partial(NumberLeq, self)
 
     def dataize(self) -> "Number":
         return self
@@ -117,7 +131,7 @@ class Boolean(Atom):
         else:
             raise AttributeError("Boolean: value should be either str or bool")
 
-        self.If = partial(BooleanIf, self)
+        self.attr_if = partial(BooleanIf, self)
 
     def dataize(self) -> "Boolean":
         return self
@@ -136,41 +150,80 @@ class Boolean(Atom):
 
 
 class NumberAdd(Number):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__(0)
         self.parent = parent
-        self.other = other
+
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Number:
         return self.parent.dataize() + self.other.dataize()
 
 
 class NumberSub(Number):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__(0)
         self.parent = parent
-        self.other = other
+
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Number:
         return self.parent.dataize() - self.other.dataize()
 
 
 class NumberMul(Number):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__(0)
         self.parent = parent
-        self.other = other
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Number:
         return self.parent.dataize() * self.other.dataize()
 
 
 class BooleanIf(Boolean):
-    def __init__(self, parent: Boolean, if_true: Object, if_false: Object):
+    def __init__(self, parent: Boolean):
         super().__init__("false")
         self.parent = parent
-        self.if_true = if_true
-        self.if_false = if_false
+
+        # Free attributes
+        self.attributes = ["if_true", "if_false"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Object:
         return (
@@ -179,39 +232,77 @@ class BooleanIf(Boolean):
 
 
 class NumberLess(Boolean):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__("false")
         self.parent = parent
-        self.other = other
+
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self):
         return self.parent.dataize() < self.other.dataize()
 
 
 class NumberLeq(Boolean):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__("false")
         self.parent = parent
-        self.other = other
+
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self):
         return self.parent.dataize() <= self.other.dataize()
 
 
 class NumberPow(Number):
-    def __init__(self, parent: Number, other: Number):
+    def __init__(self, parent: Number):
         super().__init__(0)
         self.parent = parent
-        self.other = other
+
+        self.attributes = ["other"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self):
         return self.parent.dataize() ** self.other.dataize()
 
 
 class Array(Atom):
-    def __init__(self, *elements: Object):
-        self.elements = elements
-        self.Get = partial(ArrayGet, self)
+    def __init__(self):
+        self.attr_get = partial(ArrayGet, self)
+        self.attributes = ["elements"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 0:
+            setattr(self, self.attributes[self.application_counter], [])
+            self.application_counter += 1
+        getattr(self, self.attributes[0]).append(arg)
+        return self
 
     def dataize(self) -> "Array":
         return self
@@ -230,9 +321,19 @@ class Array(Atom):
 
 
 class ArrayGet(Object):
-    def __init__(self, arr: Array, i: Object):
+    def __init__(self, arr):
         self.arr = arr
-        self.i = i
+
+        self.attributes = ["i"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self):
         return self.arr[self.i]
@@ -252,19 +353,39 @@ class String(Atom):
         return self.value
 
 
-class FormattedString(String):
-    def __init__(self, fmt: String, *args: Object):
+class Sprintf(String):
+    def __init__(self):
         super().__init__("")
-        self.fmt = fmt
-        self.args = args
+        self.attributes = ["fmt", "args"]
+        self.application_counter = 0
+
+    def __call__(self, arg: Object):
+        if self.application_counter == 1:
+            getattr(self, self.attributes[1]).append(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+            setattr(self, self.attributes[self.application_counter], [])
+        return self
 
     def dataize(self) -> Object:
+        print(self.args)
         return String(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
 
 
 class Stdout(Atom):
-    def __init__(self, text: String):
-        self.text = text
+    def __init__(self):
+        # Free attributes
+        self.attributes = ["text"]
+        self.application_counter = 0
+
+    def __call__(self, arg: String):
+        if self.application_counter >= len(self.attributes):
+            raise ApplicationError(arg)
+        else:
+            setattr(self, self.attributes[self.application_counter], arg)
+            self.application_counter += 1
+        return self
 
     def dataize(self) -> Object:
         print(self.text.dataize())

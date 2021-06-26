@@ -24,22 +24,22 @@ def test_atom():
 @pytest.mark.parametrize("b", list(range(1, 10)))
 def test_number(a, b):
     assert Number(a) == Number(Number(a).data())
-    assert Number(a) - Number(b) == Number(a).Sub(Number(b)).dataize() == Number(a - b)
-    assert Number(a) + Number(b) == Number(a).Add(Number(b)).dataize() == Number(a + b)
-    assert Number(a) * Number(b) == Number(a).Mul(Number(b)).dataize() == Number(a * b)
+    assert Number(a) - Number(b) == Number(a).attr_sub()(Number(b)).dataize() == Number(a - b)
+    assert Number(a) + Number(b) == Number(a).attr_add()(Number(b)).dataize() == Number(a + b)
+    assert Number(a) * Number(b) == Number(a).attr_mul()(Number(b)).dataize() == Number(a * b)
     assert (
             Number(a) ** Number(b)
-            == Number(a).Pow(Number(b)).dataize()
+            == Number(a).attr_pow()(Number(b)).dataize()
             == Number(math.pow(a, b))
     )
     assert (
             (Number(a) < Number(b))
-            == Number(a).Less(Number(b)).dataize()
+            == Number(a).attr_less()(Number(b)).dataize()
             == Boolean("true" if a < b else "false")
     )
     assert (
             (Number(a) <= Number(b))
-            == Number(a).Leq(Number(b)).dataize()
+            == Number(a).attr_leq()(Number(b)).dataize()
             == Boolean("true" if a <= b else "false")
     )
 
@@ -55,7 +55,7 @@ def test_string():
 
 
 def test_array():
-    arr = Array(Number(1), Number(2), Number(3), Number(4), Number(5))
+    arr = Array()(Number(1))(Number(2))(Number(3))(Number(4))(Number(5))
     assert arr.dataize() == arr
     assert arr.dataize().data() == arr.data() == [1, 2, 3, 4, 5]
     assert arr[Number(2)] == Number(3)
@@ -78,7 +78,7 @@ def test_bool():
 
 
 def test_stdout(capsys):
-    stdout = Stdout(String("Test"))
+    stdout = Stdout()(String("Test"))
     assert stdout.data() is None
     stdout.dataize()
     assert capsys.readouterr().out == "Test\n"
@@ -96,19 +96,19 @@ def test_lazy_property():
 
 
 def attribute_test():
-    assert Attribute(Number(2), "add").applied_to(Number(2)).dataize() == Number(4)
-    assert Attribute(Number(2), "add").applied_to(
-        Attribute(Number(2), "add").applied_to(Number(2))
+    assert Attribute(Number(2), "add")(Number(2)).dataize() == Number(4)
+    assert Attribute(Number(2), "add")(
+        Attribute(Number(2), "add")(Number(2))
     ).dataize() == Number(6)
     assert Attribute(
-        Attribute(Number(2), "add").applied_to(Number(2)), "add"
-    ).applied_to(Number(2)).dataize() == Number(6)
+        Attribute(Number(2), "add")(Number(2)), "add"
+    )(Number(2)).dataize() == Number(6)
     dx = Number(2)
     dy = Number(2)
-    dx_squared = Attribute(dx, "pow").applied_to(Number(2))
-    dy_squared = Attribute(dy, "pow").applied_to(Number(2))
-    dx_squared_plus_dy_squared = Attribute(dx_squared, "add").applied_to(dy_squared)
+    dx_squared = Attribute(dx, "pow")()(Number(2))
+    dy_squared = Attribute(dy, "pow")()(Number(2))
+    dx_squared_plus_dy_squared = Attribute(dx_squared, "add")(dy_squared)
     sqrt_dx_squared_plus_dy_squared = Attribute(
         dx_squared_plus_dy_squared, "pow"
-    ).applied_to(Number(0.5))
+    )(Number(0.5))
     assert sqrt_dx_squared_plus_dy_squared.dataize() == Number(8 ** 0.5)
