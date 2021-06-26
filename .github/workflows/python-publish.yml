@@ -37,7 +37,6 @@ jobs:
         cd eo-python-runtime && ls
         python -m twine upload \
           --verbose \
-          --repository eo2py \
           --username __token__ \
           --password ${{ secrets.EO2PY_PYPI_TOKEN }} \
           dist/*
