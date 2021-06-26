@@ -39,6 +39,7 @@ import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 import org.eolang.parser.Xsline;
 import org.slf4j.impl.StaticLoggerBinder;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,14 +51,14 @@ import java.util.List;
 /**
  * Compile.
  *
- * @since 0.1
  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+ * @since 0.1
  */
 @Mojo(
-    name = "compile",
-    defaultPhase = LifecyclePhase.GENERATE_SOURCES,
-    threadSafe = true,
-    requiresDependencyResolution = ResolutionScope.COMPILE
+        name = "compile",
+        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.COMPILE
 )
 @SuppressWarnings("PMD.LongVariable")
 public final class CompileMojo extends AbstractMojo {
@@ -70,26 +71,29 @@ public final class CompileMojo extends AbstractMojo {
 
     /**
      * Target directory.
+     *
      * @checkstyle MemberNameCheck (7 lines)
      */
     @Parameter(
-        required = true,
-        defaultValue = "${project.build.directory}/generated-sources"
+            required = true,
+            defaultValue = "${project.build.directory}/generated-sources"
     )
     private File generatedDir;
 
     /**
      * Target directory.
+     *
      * @checkstyle MemberNameCheck (7 lines)
      */
     @Parameter(
-        required = true,
-        defaultValue = "${project.build.directory}/eo"
+            required = true,
+            defaultValue = "${project.build.directory}/eo"
     )
     private File targetDir;
 
     /**
      * Add to source root.
+     *
      * @checkstyle MemberNameCheck (7 lines)
      */
     @Parameter
@@ -98,6 +102,7 @@ public final class CompileMojo extends AbstractMojo {
 
     /**
      * Add to test source root.
+     *
      * @checkstyle MemberNameCheck (7 lines)
      */
     @Parameter
@@ -112,32 +117,32 @@ public final class CompileMojo extends AbstractMojo {
         final Path dir = this.targetDir.toPath().resolve("03-optimize");
         try {
             Files.walk(dir)
-                .filter(file -> !file.toFile().isDirectory())
-                .forEach(this::compile);
+                    .filter(file -> !file.toFile().isDirectory())
+                    .forEach(this::compile);
         } catch (final IOException ex) {
             throw new MojoFailureException(
-                new UncheckedText(
-                    new FormattedText(
-                        "Can't list EO files in %s",
-                        dir
-                    )
-                ).asString(),
-                ex
+                    new UncheckedText(
+                            new FormattedText(
+                                    "Can't list EO files in %s",
+                                    dir
+                            )
+                    ).asString(),
+                    ex
             );
         }
         if (this.addSourcesRoot) {
             this.project.addCompileSourceRoot(
-                this.generatedDir.getAbsolutePath()
+                    this.generatedDir.getAbsolutePath()
             );
         }
         if (this.addTestSourcesRoot) {
             this.project.addTestCompileSourceRoot(
-                this.generatedDir.getAbsolutePath()
+                    this.generatedDir.getAbsolutePath()
             );
         }
         Logger.info(
-            this, "Directory added to sources: %s",
-            this.generatedDir
+                this, "Directory added to sources: %s",
+                this.generatedDir
         );
     }
 
@@ -154,41 +159,43 @@ public final class CompileMojo extends AbstractMojo {
             final String name = input.xpath("/program/@name").get(0);
             final Path target = CompileMojo.resolve(temp, name);
             new Xsline(
-                input,
-                new OutputTo(CompileMojo.resolve(temp, name)),
-                new TargetSpy(CompileMojo.resolve(pre, name)),
-                new ListOf<>(
-                    "org.eolang.maven/pre/classes.xsl",
+                    input,
+                    new OutputTo(CompileMojo.resolve(temp, name)),
+                    new TargetSpy(CompileMojo.resolve(pre, name)),
+                    new ListOf<>(
+                            "org.eolang.maven/pre/classes.xsl",
 //                    "org.eolang.maven/pre/junit.xsl",
-                    "org.eolang.maven/pre/attrs.xsl",
-                    "org.eolang.maven/pre/varargs.xsl",
-                    "org.eolang.maven/pre/arrays.xsl",
-                    "org.eolang.maven/pre/data.xsl",
-                    "org.eolang.maven/pre/to-python.xsl"
-                )
+                            "org.eolang.maven/pre/attrs.xsl",
+                            "org.eolang.maven/pre/varargs.xsl",
+                            "org.eolang.maven/pre/arrays.xsl",
+                            "org.eolang.maven/pre/data.xsl",
+                            "org.eolang.maven/pre/to-python.xsl"
+                    )
             ).pass();
             final XML after = this.noErrors(new XMLDocument(target), name);
-            for (final XML java : after.nodes("//class[java and not(@atom)]")) {
-                new Save(
-                    java.xpath("java/text()").get(0),
-                    this.generatedDir.toPath().resolve(
-                        Paths.get(
-                            String.format(
-                                "%s.java",
-                                java.xpath("@java-name").get(0)
-                                    .replace(".", "/")
-                            )
-                        )
-                    )
-                ).save();
+            StringBuilder sources = new StringBuilder();
+            for (final XML java : after.nodes("//class[python and not(@atom)]")) {
+                sources.append(java.xpath("python/text()").get(0));
+
             }
+            new Save(
+                    sources.toString(),
+                    this.generatedDir.toPath().resolve(
+                            Paths.get(
+                                    String.format(
+                                            "%s.py",
+                                            FilenameUtils.removeExtension(file.getFileName().toString())
+                                    )
+                            )
+                    )
+            ).save();
         } catch (final IOException ex) {
             throw new IllegalStateException(
-                String.format(
-                    "Can't pass %s into %s",
-                    file, this.generatedDir
-                ),
-                ex
+                    String.format(
+                            "Can't pass %s into %s",
+                            file, this.generatedDir
+                    ),
+                    ex
             );
         }
         Logger.info(this, "%s compiled to %s", file, this.generatedDir);
@@ -197,7 +204,7 @@ public final class CompileMojo extends AbstractMojo {
     /**
      * Check for errors.
      *
-     * @param xml The XML output
+     * @param xml  The XML output
      * @param name Name of the program
      * @return The same XML if no errors
      */
@@ -205,21 +212,21 @@ public final class CompileMojo extends AbstractMojo {
         final List<XML> errors = xml.nodes("/program/errors/error");
         for (final XML error : errors) {
             Logger.error(
-                this,
-                "[%s:%s] %s (%s:%s)",
-                name,
-                error.xpath("@line").get(0),
-                error.xpath("text()").get(0),
-                error.xpath("@check").get(0),
-                error.xpath("@step").get(0)
+                    this,
+                    "[%s:%s] %s (%s:%s)",
+                    name,
+                    error.xpath("@line").get(0),
+                    error.xpath("text()").get(0),
+                    error.xpath("@check").get(0),
+                    error.xpath("@step").get(0)
             );
         }
         if (!errors.isEmpty()) {
             throw new IllegalStateException(
-                String.format(
-                    "There are %d errors in %s, see log above",
-                    errors.size(), name
-                )
+                    String.format(
+                            "There are %d errors in %s, see log above",
+                            errors.size(), name
+                    )
             );
         }
         return xml;
@@ -227,16 +234,17 @@ public final class CompileMojo extends AbstractMojo {
 
     /**
      * Make a relative path.
-     * @param dir The dir
+     *
+     * @param dir  The dir
      * @param name The name
      * @return Path
      */
     private static Path resolve(final Path dir, final String name) {
         final Path path = dir.resolve(
-            String.format(
-                "%s.xml",
-                name
-            )
+                String.format(
+                        "%s.xml",
+                        name
+                )
         );
         if (path.toFile().getParentFile().mkdirs()) {
             Logger.info(CompileMojo.class, "%s directory created", dir);
