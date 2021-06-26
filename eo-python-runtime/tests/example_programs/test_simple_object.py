@@ -21,11 +21,11 @@ class EOperson(Object):
         if self.application_counter >= len(self.attributes):
             raise ApplicationError(arg)
         else:
-            setattr(self, self.attributes[self.application_counter], arg)
+            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
             self.application_counter += 1
         return self
 
-    def dataize(self) -> object:
+    def dataize(self) -> 'Atom':
         return self.__PHI__.dataize()
 
 
@@ -34,4 +34,4 @@ def test_person():
         assert EOperson()(String("David"))(String("Bowie"))
     with pytest.raises(NotImplementedError) as e:
         assert EOperson()(String("Kate")).dataize()
-    assert Attribute(EOperson()(String("Kate")), "name").dataize()
+    assert Attribute(EOperson()(String("Kate")), "name").dataize().data() == "Kate"
