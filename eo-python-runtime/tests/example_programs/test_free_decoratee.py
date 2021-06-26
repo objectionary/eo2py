@@ -115,7 +115,7 @@ class EOapp(Object):
         return self.attr__phi.dataize()
 
 
-def test_chained_phi(capsys):
+def test_free_decoratee(capsys):
     assert EOapp().dataize()
     stdout = capsys.readouterr().out.strip()
     assert stdout.splitlines(keepends=True)[-1] == '5 6'
