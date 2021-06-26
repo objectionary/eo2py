@@ -114,8 +114,8 @@ SOFTWARE.
         <xsl:copy>
             <xsl:apply-templates select="@*"/>
             <xsl:element name="python">
-                <xsl:apply-templates select="/program" mode="license"/>
-                <xsl:text>from eo2py.atoms import *</xsl:text>
+<!--                <xsl:apply-templates select="/program" mode="license"/>-->
+<!--                <xsl:text>from eo2py.atoms import *</xsl:text>-->
                 <xsl:value-of select="eo:eol(0)"/>
                 <xsl:apply-templates select="." mode="body"/>
             </xsl:element>
@@ -128,16 +128,14 @@ SOFTWARE.
         <xsl:text>(Object):</xsl:text>
         <xsl:value-of select="eo:eol(1)"/>
         <xsl:value-of select="eo:eol(1)"/>
-        <xsl:text>def __init__(self, </xsl:text>
+        <xsl:text>def __init__(self</xsl:text>
         <xsl:if test="exists(@parent)">
-            <xsl:text>attr__parent, </xsl:text>
+            <xsl:text>, attr__parent</xsl:text>
         </xsl:if>
-        <xsl:apply-templates select="attr/free" mode="args"/>
-        <xsl:apply-templates select="attr/vararg" mode="arg"/>
         <xsl:text>):</xsl:text>
         <xsl:value-of select="eo:eol(2)"/>
-        <xsl:apply-templates select="attr/free" mode="assignments"/>
-        <xsl:apply-templates select="attr/vararg" mode="assignment"/>
+        <xsl:text>self.attr__self = self</xsl:text>
+        <xsl:value-of select="eo:eol(2)"/>
         <xsl:choose>
             <xsl:when test="exists(@parent)">
                 <xsl:text>self.attr__parent = attr__parent</xsl:text>
@@ -146,7 +144,28 @@ SOFTWARE.
                 <xsl:text>self.attr__parent = DataizationError()</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
-        <xsl:value-of select="eo:eol(1)"/>
+        <xsl:value-of select="eo:eol(2)"/>
+        <xsl:if test="not(attr[@name='@'])">
+            <xsl:text>self.attr__phi = DataizationError() </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="eo:eol(2)"/>
+        <xsl:apply-templates select="attr/free" mode="assignments"/>
+        <xsl:apply-templates select="attr/vararg" mode="assignment"/>
+        <xsl:value-of select="eo:eol(2)"/>
+        <xsl:text>self.attributes = [</xsl:text>
+        <xsl:apply-templates select="attr/(free|vararg)" mode="attribute_names"/>
+        <xsl:text>]</xsl:text>
+        <xsl:value-of select="eo:eol(2)"/>
+        <xsl:text>self.application_counter = 0</xsl:text>
+        <xsl:value-of select="eo:eol(2)"/>
+        <xsl:choose>
+            <xsl:when test="attr/vararg">
+                <xsl:text>self.varargs = True</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>self.varargs = False</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
         <xsl:value-of select="eo:eol(1)"/>
         <xsl:text>def dataize(self):</xsl:text>
         <xsl:value-of select="eo:eol(2)"/>
@@ -185,9 +204,8 @@ SOFTWARE.
     </xsl:template>
     <xsl:template match="free" mode="assignments">
         <xsl:text>self.</xsl:text>
-        <xsl:value-of select="../@name"/>
-        <xsl:text> = </xsl:text>
-        <xsl:value-of select="../@name"/>
+        <xsl:value-of select="eo:inner-attr-name(../@name)"/>
+        <xsl:text> = DataizationError()</xsl:text>
         <xsl:value-of select="eo:eol(2)"/>
     </xsl:template>
     <xsl:template match="vararg" mode="arg">
@@ -197,10 +215,14 @@ SOFTWARE.
     </xsl:template>
     <xsl:template match="vararg" mode="assignment">
         <xsl:text>self.</xsl:text>
-        <xsl:value-of select="o/@name"/>
-        <xsl:text> = </xsl:text>
-        <xsl:value-of select="o/@name"/>
+        <xsl:value-of select="eo:inner-attr-name(o/@name)"/>
+        <xsl:text> = Array()</xsl:text>
         <xsl:value-of select="eo:eol(2)"/>
+    </xsl:template>
+    <xsl:template match="vararg|free" mode="attribute_names">
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="eo:attr-name(o/@name)"/>
+        <xsl:text>", </xsl:text>
     </xsl:template>
     <xsl:template match="bound">
         <xsl:text>@property</xsl:text>
@@ -333,7 +355,7 @@ SOFTWARE.
                 <xsl:text>)</xsl:text>
             </xsl:when>
 <!--            if an atom is applied-->
-            <xsl:otherwise>
+            <xsl:when test="starts-with(@base, 'org.eolang.')">
                 <xsl:variable name="objName" select="tokenize(@base, '\.')[last()]"/>
                 <xsl:choose>
                     <xsl:when test="not($objName = 'float' or $objName = 'string' or  $objName = 'int')">
@@ -355,6 +377,9 @@ SOFTWARE.
                         <xsl:text>)</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates select="."/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
