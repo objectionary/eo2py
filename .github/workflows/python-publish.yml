@@ -27,13 +27,17 @@ jobs:
       run: |
         cd eo-python-runtime && ls
         python -m pip install --upgrade pip
-        pip install build
+        python -m pip install build twine
     - name: Build package
       run: |
         cd eo-python-runtime && ls
         python -m build
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.EO2PY_PYPI_TOKEN }}
+      run: |
+        cd eo-python-runtime && ls
+        python -m twine upload \
+          --verbose \
+          --repository eo2py \
+          --username __token__ \
+          --password ${{ secrets.EO2PY_PYPI_TOKEN }} \
+          dist/*
