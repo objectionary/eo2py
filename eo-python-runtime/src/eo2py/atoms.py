@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from functools import partial
+from functools import partial, reduce
 from typing import List, Union, Optional
 
 
@@ -53,9 +53,7 @@ class Attribute(Object):
         if attr is not None:
             if callable(attr):
                 print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
-                res = attr()
-                for arg in self.args:
-                    res = res(arg)
+                res = reduce(lambda obj, arg: obj(arg), self.args, attr())
                 return res.dataize()
             else:
                 print(f"Dataizing {attr}, no args needed.")
@@ -63,8 +61,7 @@ class Attribute(Object):
 
         print(f"Dataizing {self.obj}...")
         attr = getattr(self.obj.dataize(), self.inner_name())()
-        for arg in self.args:
-            attr = attr(arg)
+        attr = reduce(lambda obj, arg: obj(arg), self.args, attr)
         return attr.dataize()
 
 
