@@ -3,8 +3,8 @@ import pytest
 import math
 
 
-def test_base():
-    with pytest.raises(NotImplementedError) as e:
+def test_object():
+    with pytest.raises(AttributeError) as e:
         Object().dataize()
 
 
