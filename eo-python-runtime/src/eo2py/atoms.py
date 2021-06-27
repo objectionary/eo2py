@@ -9,19 +9,21 @@ class ApplicationMixin:
     application_counter: int = 0
     attributes: List[str] = []
 
-    def __call__(self, arg: "Object"):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
+    def __call__(self, *args: "Object"):
+        if len(args) == 1:
+            arg = args[0]
+            if not self.varargs:
+                if self.application_counter >= len(self.attributes):
+                    raise ApplicationError(arg)
+                else:
+                    setattr(self, "attr_" + self.attributes[self.application_counter], arg)
+                    self.application_counter += 1
             else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
+                if self.application_counter < len(self.attributes) - 1:
+                    setattr(self, "attr_" + self.attributes[self.application_counter], arg)
+                    self.application_counter += 1
+                elif self.application_counter == len(self.attributes) - 1:
+                    getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
         return self
 
 
