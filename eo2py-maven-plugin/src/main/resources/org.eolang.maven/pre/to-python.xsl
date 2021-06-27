@@ -348,11 +348,12 @@ SOFTWARE.
             <xsl:when test="$b">
                 <xsl:text>(self.</xsl:text>
                 <xsl:value-of select="eo:inner-attr-name(@base)"/>
+                <xsl:text>)</xsl:text>
                 <xsl:apply-templates select="." mode="application">
                     <xsl:with-param name="name" select="$name"/>
                     <xsl:with-param name="indent" select="$indent"/>
                 </xsl:apply-templates>
-                <xsl:text>)</xsl:text>
+<!--                <xsl:text></xsl:text>-->
             </xsl:when>
 <!--            if an atom is applied-->
             <xsl:when test="starts-with(@base, 'org.eolang.')">
@@ -379,8 +380,11 @@ SOFTWARE.
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-<!--                <xsl:apply-templates select="."/>-->
-                <xsl:text>ABOBA</xsl:text>
+                <xsl:text>(</xsl:text>
+                <xsl:value-of select="concat('', eo:class-name(@base))"/>
+                <xsl:text>(</xsl:text>
+                <xsl:apply-templates select="*"/>
+                <xsl:text>))</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
