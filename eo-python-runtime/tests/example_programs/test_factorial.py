@@ -26,22 +26,14 @@ from eo2py.atoms import *
 """
 
 
-class EOfactorial(Object):
+class EOfactorial(ApplicationMixin, Object):
     def __init__(self):
         self.attr__parent = self
         self.attr__self = self
 
         # Free attributes
         self.attributes = ["n"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
+        self.attr_n = DataizationError()
 
     @property
     def attr__phi(self):
@@ -54,33 +46,20 @@ class EOfactorial(Object):
             )
         )
 
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
 
-
-class EOappFactorial(Object):
+class EOappFactorial(ApplicationMixin, Object):
     def __init__(self):
         self.attributes = ["args"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter == 0:
-            setattr(self, self.attributes[self.application_counter], [])
-            self.application_counter += 1
-        getattr(self, self.attributes[0]).append(arg)
-        return self
+        self.attr_args = Array()
 
     @property
     def n(self):
-        return Attribute(self.args, "get")(Number(0))
+        return Attribute(self.attr_args, "get")(Number(0))
 
     @property
     def attr__phi(self):
         return Stdout()\
             (Sprintf()(String("%d! = %d"))(self.n)(EOfactorial()(self.n)))
-
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
 
 
 def test_factorial():
