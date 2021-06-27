@@ -109,6 +109,7 @@ class Number(Atom):
         self.attr_less = partial(NumberOperation, self, operator.lt)
         self.attr_mul = partial(NumberOperation, self, operator.mul)
         self.attr_leq = partial(NumberOperation, self, operator.le)
+        self.attr_eq = partial(NumberOperation, self, operator.eq)
 
     def dataize(self) -> "Number":
         return self
