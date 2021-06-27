@@ -45,7 +45,7 @@ from eo2py.atoms import *
 """
 
 
-class EOvector(Object):
+class EOvector(ApplicationMixin, Object):
 
     def __init__(self):
         self.attr__self = self
@@ -55,26 +55,6 @@ class EOvector(Object):
         self.attr_dy = DataizationError()
 
         self.attributes = ["dx", "dy", ]
-        self.application_counter = 0
-        self.varargs = False
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
     @property
     def attr_length(self):
@@ -82,7 +62,7 @@ class EOvector(Object):
             Attribute((self.attr_dy), "pow")()(Number(2.0)))), "pow")()(Number(0.5)))
 
 
-class EOpoint(Object):
+class EOpoint(ApplicationMixin, Object):
 
     def __init__(self):
         self.attr__self = self
@@ -92,33 +72,13 @@ class EOpoint(Object):
         self.attr_y = DataizationError()
 
         self.attributes = ["x", "y", ]
-        self.application_counter = 0
-        self.varargs = False
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
     @property
     def attr_distance(self):
         return partial(EOpointEOdistance, self)
 
 
-class EOpointEOdistance(Object):
+class EOpointEOdistance(ApplicationMixin, Object):
 
     def __init__(self, attr__parent):
         self.attr__self = self
@@ -127,26 +87,6 @@ class EOpointEOdistance(Object):
         self.attr_to = DataizationError()
 
         self.attributes = ["to", ]
-        self.application_counter = 0
-        self.varargs = False
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
     @property
     def attr__phi(self):
@@ -156,7 +96,7 @@ class EOpointEOdistance(Object):
             "length")())
 
 
-class EOcircle(Object):
+class EOcircle(ApplicationMixin, Object):
 
     def __init__(self):
         self.attr__self = self
@@ -166,26 +106,6 @@ class EOcircle(Object):
         self.attr_radius = DataizationError()
 
         self.attributes = ["center", "radius", ]
-        self.application_counter = 0
-        self.varargs = False
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
     @property
     def attr__phi(self):
@@ -196,7 +116,7 @@ class EOcircle(Object):
         return partial(EOcircleEOis_inside, self)
 
 
-class EOcircleEOis_inside(Object):
+class EOcircleEOis_inside(ApplicationMixin, Object):
 
     def __init__(self, attr__parent):
         self.attr__self = self
@@ -205,23 +125,6 @@ class EOcircleEOis_inside(Object):
         self.attr_p = DataizationError()
 
         self.attributes = ["p", ]
-        self.application_counter = 0
-        self.varargs = False
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
 
     def dataize(self):
         return self.attr__phi.dataize()
@@ -232,7 +135,7 @@ class EOcircleEOis_inside(Object):
             Attribute((self.attr__parent), "radius")()))
 
 
-class EOapp(Object):
+class EOapp(ApplicationMixin, Object):
 
     def __init__(self):
         self.attr__self = self
@@ -241,26 +144,7 @@ class EOapp(Object):
         self.attr_args = Array()
 
         self.attributes = ["args", ]
-        self.application_counter = 0
         self.varargs = True
-
-    def __call__(self, arg: 'Object'):
-        if not self.varargs:
-            if self.application_counter >= len(self.attributes):
-                raise ApplicationError(arg)
-            else:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-        else:
-            if self.application_counter < len(self.attributes) - 1:
-                setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-                self.application_counter += 1
-            elif self.application_counter == len(self.attributes) - 1:
-                getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
-        return self
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
     @property
     def attr__phi(self):
