@@ -264,6 +264,11 @@ class String(Atom):
     def data(self) -> str:
         return self.value
 
+    def __eq__(self, other):
+        if isinstance(other, String):
+            return Boolean(self.value == other.value)
+        return Boolean(False)
+
     def __str__(self):
         return self.value
 
@@ -324,7 +329,6 @@ def lazy_property(fn):
 
     return _lazy_property
 
-
-if __name__ == '__main__':
-    print(Number(2).attr_add()(Number(2)).dataize())
-    print(Number(2).attr_less()(Number(3)).dataize())
+# if __name__ == '__main__':
+#     print(Number(2).attr_add()(Number(2)).dataize())
+#     print(Number(2).attr_less()(Number(3)).dataize())
