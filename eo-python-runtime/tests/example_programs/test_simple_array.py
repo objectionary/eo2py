@@ -1,5 +1,4 @@
 from eo2py.atoms import *
-from functools import reduce
 
 """
 [args...] > appArray
@@ -12,18 +11,12 @@ from functools import reduce
 """
 
 
-class EOappArray(Object):
+class EOappArray(ApplicationMixin, Object):
     def __init__(self):
         # Free attributes
         self.attributes = ["args"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter == 0:
-            setattr(self, "attr_" + self.attributes[self.application_counter], [])
-            self.application_counter += 1
-        getattr(self, "attr_" + self.attributes[0]).append(arg)
-        return self
+        self.attr_args = Array()
+        self.varargs = True
 
     @property
     def attr__phi(self):
@@ -31,12 +24,9 @@ class EOappArray(Object):
                 Sprintf()
                 (String("%d"))
                 (Attribute(
-                    reduce(lambda obj, arg: obj(arg), self.attr_args, Array()),
+                    self.attr_args,
                     "get")()(Number(3)))
                 )
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
 
 def test_simple_array():
