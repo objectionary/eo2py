@@ -19,7 +19,7 @@ from eo2py.atoms import *
 """
 
 
-class EOnumber(Object):
+class EOnumber(ApplicationMixin, Object):
 
     def __init__(self):
 
@@ -27,65 +27,37 @@ class EOnumber(Object):
         self.attr__self = self
 
         self.attributes = ["value"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
-
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
+        self.attr_value = DataizationError()
 
     def __str__(self):
         return f"number(value={self.attr_value})"
 
 
-class EOdecorator(Object):
+class EOdecorator(ApplicationMixin, Object):
 
     def __init__(self):
         self.attr__parent = DataizationError()
         self.attr__self = self
 
         self.attributes = ["_phi"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
+        self.attr__phi = DataizationError()
 
     @property
     def attr_incremented_value(self):
         return Attribute(Attribute(self, 'value'), 'add')()(Number(1))
 
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
-
     def __str__(self):
         return f"decorator(_phi={self.attr__phi})"
 
 
-class EOapp(Object):
-    def __init__(self, *args, **kwargs):
+class EOapp(ApplicationMixin, Object):
+    def __init__(self):
         self.attr__parent = DataizationError()
         self.attr__self = self
 
         self.attributes = ["args"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter == 0:
-            setattr(self, self.attributes[self.application_counter], [])
-            self.application_counter += 1
-        getattr(self, self.attributes[0]).append(arg)
-        return self
+        self.varargs = True
+        self.attr_args = Array()
 
     @property
     def attr_n(self):
@@ -110,9 +82,6 @@ class EOapp(Object):
                 Attribute(self.attr_decorated_number, 'incremented_value')
             )
         )
-
-    def dataize(self) -> object:
-        return self.attr__phi.dataize()
 
 
 def test_free_decoratee(capsys):
