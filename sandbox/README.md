@@ -15,14 +15,15 @@ This can be done by running `setup_python_env.sh`:
 ```bash
 $ ./setup_python_env.sh
 ```
+In order for this script to work you are going to need **Python 3.6+**, as well as the **`venv`** tool installed in your system.
 This script will:
 * Create a Python virtual environment in the `venv` directory.
 * `pip install` all the necessary dependencies ([`eo2py`](https://pypi.org/project/eo2py/) and [`black`](https://github.com/psf/black) to format the code)
 * `activate` the virtual environment
 
-Then, compile the code (you will need
+After that, you can compile and run the code (you will need
 [Maven 3.3+](https://maven.apache.org/)
-and [Java SDK 8+](https://www.java.com/en/download/) installed):
+and [Java SDK 8+](https://www.java.com/en/download/) installed) by running:
 
 ```bash
 $ ./run.sh
