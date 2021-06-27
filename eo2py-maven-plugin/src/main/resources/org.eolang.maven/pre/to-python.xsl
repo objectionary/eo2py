@@ -125,7 +125,7 @@ SOFTWARE.
         <xsl:value-of select="eo:eol(0)"/>
         <xsl:text>class </xsl:text>
         <xsl:value-of select="eo:class-name(@name)"/>
-        <xsl:text>(Object):</xsl:text>
+        <xsl:text>(ApplicationMixin, Object):</xsl:text>
         <xsl:value-of select="eo:eol(1)"/>
         <xsl:value-of select="eo:eol(1)"/>
         <xsl:text>def __init__(self</xsl:text>
@@ -156,21 +156,21 @@ SOFTWARE.
         <xsl:apply-templates select="attr/(free|vararg)" mode="attribute_names"/>
         <xsl:text>]</xsl:text>
         <xsl:value-of select="eo:eol(2)"/>
-        <xsl:text>self.application_counter = 0</xsl:text>
+<!--        <xsl:text>self.application_counter = 0</xsl:text>-->
         <xsl:value-of select="eo:eol(2)"/>
         <xsl:choose>
             <xsl:when test="attr/vararg">
                 <xsl:text>self.varargs = True</xsl:text>
             </xsl:when>
-            <xsl:otherwise>
-                <xsl:text>self.varargs = False</xsl:text>
-            </xsl:otherwise>
+<!--            <xsl:otherwise>-->
+<!--                <xsl:text>self.varargs = False</xsl:text>-->
+<!--            </xsl:otherwise>-->
         </xsl:choose>
         <xsl:value-of select="eo:eol(1)"/>
-        <xsl:text>def dataize(self):</xsl:text>
-        <xsl:value-of select="eo:eol(2)"/>
-        <xsl:text>return self.attr__phi.dataize()</xsl:text>
-        <xsl:value-of select="eo:eol(1)"/>
+<!--        <xsl:text>def dataize(self):</xsl:text>-->
+<!--        <xsl:value-of select="eo:eol(2)"/>-->
+<!--        <xsl:text>return self.attr__phi.dataize()</xsl:text>-->
+<!--        <xsl:value-of select="eo:eol(1)"/>-->
         <xsl:value-of select="eo:eol(1)"/>
         <xsl:apply-templates select="." mode="ctors"/>
         <xsl:apply-templates select="class" mode="body"/>
@@ -348,11 +348,12 @@ SOFTWARE.
             <xsl:when test="$b">
                 <xsl:text>(self.</xsl:text>
                 <xsl:value-of select="eo:inner-attr-name(@base)"/>
+                <xsl:text>)</xsl:text>
                 <xsl:apply-templates select="." mode="application">
                     <xsl:with-param name="name" select="$name"/>
                     <xsl:with-param name="indent" select="$indent"/>
                 </xsl:apply-templates>
-                <xsl:text>)</xsl:text>
+<!--                <xsl:text></xsl:text>-->
             </xsl:when>
 <!--            if an atom is applied-->
             <xsl:when test="starts-with(@base, 'org.eolang.')">
@@ -379,8 +380,11 @@ SOFTWARE.
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-<!--                <xsl:apply-templates select="."/>-->
-                <xsl:text>ABOBA</xsl:text>
+                <xsl:text>(</xsl:text>
+                <xsl:value-of select="concat('', eo:class-name(@base))"/>
+                <xsl:text>(</xsl:text>
+                <xsl:apply-templates select="*"/>
+                <xsl:text>))</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -409,7 +413,7 @@ SOFTWARE.
                 <xsl:text>"</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
-        <xsl:text>)()</xsl:text>
+        <xsl:text>)</xsl:text>
         <xsl:apply-templates select="." mode="application">
             <xsl:with-param name="indent" select="$indent"/>
             <xsl:with-param name="name" select="$name"/>

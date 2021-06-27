@@ -3,8 +3,8 @@ import pytest
 import math
 
 
-def test_base():
-    with pytest.raises(NotImplementedError) as e:
+def test_object():
+    with pytest.raises(AttributeError) as e:
         Object().dataize()
 
 
@@ -52,6 +52,7 @@ def test_string():
             == String(value).data()
             == value
     )
+    assert not String("12") == Number(12)
 
 
 def test_array():
@@ -61,6 +62,12 @@ def test_array():
     assert arr[Number(2)] == Number(3)
     with pytest.raises(AttributeError) as e:
         assert arr[2] == Number(3)
+
+    assert Attribute(Array()(Number(2)), "get")(Number(0)).dataize() == Number(2)
+    with pytest.raises(IndexError):
+        assert Attribute(Array()(Number(2)), "get")(Number(1)).dataize()
+    with pytest.raises(ApplicationError):
+        assert Attribute(Array()(Number(2)), "get")(Number(1))(Number(2)).dataize()
 
 
 def test_bool():
@@ -75,12 +82,19 @@ def test_bool():
     assert true and not false
     assert str(true) == "Boolean(True)"
     assert str(false) == "Boolean(False)"
+    assert Attribute(Boolean(False), "if")(String("true"))(String("false")).dataize() == String("false")
+    assert Attribute(Boolean(True), "if")(String("true"))(String("false")).dataize() == String("true")
+    with pytest.raises(ApplicationError):
+        assert Attribute(Boolean(True), "if")(String("true"))(String("false"))(
+            String("something else lmao")).dataize() == String("true")
 
 
 def test_stdout(capsys):
     stdout = Stdout()(String("Test"))
     assert stdout.data() is None
     stdout.dataize()
+    with pytest.raises(ApplicationError):
+        Stdout()(String("Test"))("Test2")
     assert capsys.readouterr().out == "Test\n"
 
 

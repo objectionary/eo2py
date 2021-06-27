@@ -6,27 +6,15 @@ import pytest
 """
 
 
-class EOperson(Object):
+class EOperson(ApplicationMixin, Object):
     def __init__(self):
         # Special attributes
-        self.__PHI__ = DataizationError()
-        self.__PARENT__ = DataizationError()
-        self.__THIS__ = self
+        self.attr__phi = DataizationError()
+        self.attr__parent = DataizationError()
+        self.attr__self = self
 
         # Free attributes
         self.attributes = ["name"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
-
-    def dataize(self) -> 'Atom':
-        return self.__PHI__.dataize()
 
 
 def test_person():

@@ -1,0 +1,10 @@
++package sandbox
+
+[n] > fibonacci
+  if. > @
+    n.less 2
+    n
+    add.
+      fibonacci (n.sub 1)
+      fibonacci (n.sub 2)
+
