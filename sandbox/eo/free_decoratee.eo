@@ -1,0 +1,17 @@
+[value] > number
+  value > @
+
+[@] > decorator
+  add. > incremented_value
+     @
+     1
+
+[args...] > app
+  number 5 > n
+  decorator n > decorated_number
+  stdout > @
+    sprintf
+      "%d %d\n"
+      n
+      (decorated_number.incremented_value)
+
