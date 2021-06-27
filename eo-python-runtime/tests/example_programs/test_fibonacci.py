@@ -13,23 +13,14 @@ from eo2py.atoms import *
 """
 
 
-class EOfibonacci(Object):
+class EOfibonacci(ApplicationMixin, Object):
     def __init__(self):
         self.attr__parent = DataizationError()
         self.attr__self = self
 
         # Free attributes
         self.attributes = ["n"]
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, "attr_" + self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
-
+        self.attr_n = DataizationError()
 
     @property
     def attr__phi(self):
@@ -43,9 +34,6 @@ class EOfibonacci(Object):
                 "add",
             )(EOfibonacci()(Attribute(self.attr_n, "sub")(Number(2)))),
         )
-
-    def dataize(self):
-        return self.attr__phi.dataize()
 
 
 def test_fibonacci():
