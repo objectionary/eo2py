@@ -7,7 +7,7 @@ import operator
 class ApplicationMixin:
     varargs: bool = False
     application_counter: int = 0
-    attributes: List[str]
+    attributes: List[str] = []
 
     def __call__(self, arg: "Object"):
         if not self.varargs:
