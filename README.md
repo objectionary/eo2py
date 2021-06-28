@@ -62,7 +62,7 @@ Projections of object and attribute names get prefixes `EO` and `attr_` correspo
   "Object Thinking" > title
 ```
 
-```python=
+```python
 class EObook(ApplicationMixin, Object):
     
     def __init__(self):
@@ -80,7 +80,7 @@ class EObook(ApplicationMixin, Object):
 
 #### Inner Objects 
 Attribute might be tied to an abstract object. Our translation model utilizes class objects, and exploits `partial()` method defined in `functools` (Python standard library package) to specify $\rho$ a.k.a. `^` a.k.a. `attr__parent` object:
-```=
+```
 [x y] > point
   [to] > distance
     length. > @
@@ -90,7 +90,7 @@ Attribute might be tied to an abstract object. Our translation model utilizes cl
 ```
 
 
-```python=
+```python
 class EOpoint(ApplicationMixin, Object):
 
     def __init__(self):
@@ -135,7 +135,7 @@ Whenever specific attribute is needed, `dataize()` in `Attribute` searches for t
   b.a_message > c_message
 ```
 
-```python=
+```python
 class EOa(ApplicationMixin, Object):
     
     def __init__(self):
@@ -185,7 +185,7 @@ The particular implementation of `__call__()` is injected into each `Object` wit
   truth_value.if "yes" "no" > @
 ```
 
-```python=
+```python
 class EOanswer(ApplicationMixin, Object):
     
     def __init__(self):
@@ -215,7 +215,7 @@ As per [EO paper](https://github.com/cqfn/eo/tree/master/paper), all the varargs
       arg2
 ```
 
-```python=
+```python
 class EOobj(ApplicationMixin, Object):
     def __init__(self):
         # Free attributes
@@ -245,7 +245,7 @@ class EOobj(ApplicationMixin, Object):
 ### Dataization
 All classes (think, abstract object), both auto-generated and atomic, implement an `Object` interface with only one method - `dataize()`. This method is responsible for reducing a complex object to some `Atom` object. The `Atom` object, in turn, can not be dataized any further and will simply return itself whenever it receives a dataization request. 
 
-```python=
+```python
 class Atom(Object):
 
     def dataize(self):
