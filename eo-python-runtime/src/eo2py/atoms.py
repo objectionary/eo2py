@@ -35,9 +35,8 @@ class Object:
 
 
 class Atom(Object):
-    @abstractmethod
     def dataize(self) -> "Atom":
-        raise NotImplementedError()
+        return self
 
     @abstractmethod
     def data(self) -> object:
@@ -111,9 +110,6 @@ class Number(Atom):
         self.attr_leq = partial(NumberOperation, self, operator.le)
         self.attr_eq = partial(NumberOperation, self, operator.eq)
 
-    def dataize(self) -> "Number":
-        return self
-
     def data(self) -> Union[int, float]:
         return self.value
 
@@ -155,9 +151,6 @@ class Boolean(Atom):
             raise AttributeError("Boolean: value should be either str or bool")
 
         self.attr_if = partial(BooleanIf, self)
-
-    def dataize(self) -> "Boolean":
-        return self
 
     def data(self) -> bool:
         return self.value
@@ -219,9 +212,6 @@ class Array(Atom):
         self.elements.append(arg)
         return self
 
-    def dataize(self) -> "Array":
-        return self
-
     def data(self) -> List:
         return [elem.dataize().data() for elem in self.elements]
 
@@ -257,9 +247,6 @@ class ArrayGet(Object):
 class String(Atom):
     def __init__(self, value: str):
         self.value = value
-
-    def dataize(self) -> "String":
-        return self
 
     def data(self) -> str:
         return self.value
