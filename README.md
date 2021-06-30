@@ -6,18 +6,18 @@ A Python implementation of [EO](https://github.com/cqfn/eo).
 
 ## This repository contains:
 * Transcompiler
-    * Maven plugin that applies XSL transformations to .eo programs and yields .py programs.
+    * Maven plugin that transforms `.eo` programs into `.py` programs using XSLT.
 * Python runtime environment
     * Implementation of atoms and data objects as a [pip package](https://pypi.org/project/eo2py/).
-* Examples of translated programs in `eo-python-runtime/tests/example_programs` as `pytest` unit tests.
-* Sandbox to compile and execute your own EO programs! 
+* Examples of translated programs in [`eo-python-runtime/tests/example_programs`](https://github.com/nikololiahim/eo-python/tree/main/eo-python-runtime/tests/example_programs) as `pytest` unit tests.
+* [Sandbox](https://github.com/nikololiahim/eo-python/tree/main/sandbox) to compile and execute your own EO programs! 
 ## How to use
-Check out `README.md` in `sandbox` directory.
+Check out `README.md` in [`sandbox`](https://github.com/nikololiahim/eo-python/tree/main/sandbox) directory.
 
 
 ## Supported features:
 * Abstraction
-* Application in order of occurence of free attributes
+* Positional application
 * Decoration (nested decoration, free decoratees)
 * Dataization
 * Inner objects, both closed and abstract
@@ -38,11 +38,11 @@ Check out `README.md` in `sandbox` directory.
     numbers.get 4 > last
      ```
 * Metas
-* Constants (`!`)
-* Memory atom
+* Dataize Once (`!`)
+* `memory` atom
 * Regexes
 * Arbitrary partial application, argument labels
-* $\varphi$ with free attributes
+* `@` with free attributes
 * Anonymous abstract objects (as arguments to copying)
 * Maybe some more (whenever you experience a bug, feel free to submit an issue)
 
@@ -66,20 +66,28 @@ Projections of object and attribute names get prefixes `EO` and `attr_` correspo
 class EObook(ApplicationMixin, Object):
     
     def __init__(self):
-        self.attr__self = self # corresponds to `$`
-        self.attr__parent = DataizationError() # corresponds to `^`
-        self.attr__phi = DataizationError() # corresponds to `@`
-        self.attr_isbn = DataizationError() # corresponds to `isbn`
+        # corresponds to `$`
+        self.attr__self = self 
+        
+        # corresponds to `^`
+        self.attr__parent = DataizationError()
+        
+        # corresponds to `@`
+        self.attr__phi = DataizationError()
+        
+        # corresponds to `isbn`
+        self.attr_isbn = DataizationError()
         
         self.attributes = ["isbn", ]
     
+    # corresponds to `title` bound attribute
     @property
     def attr_title(self):
         return (String("Object Thinking"))
 ```
 
 #### Inner Objects 
-Attribute might be tied to an abstract object. Our translation model utilizes class objects, and exploits `partial()` method defined in `functools` (Python standard library package) to specify $\rho$ a.k.a. `^` a.k.a. `attr__parent` object:
+Attribute might be tied to an abstract object. Our translation model utilizes classes and `partial()` method defined in `functools` (Python standard library package) to specify `^` a.k.a. `attr__parent` object:
 ```
 [x y] > point
   [to] > distance
@@ -243,7 +251,7 @@ class EOobj(ApplicationMixin, Object):
 
 
 ### Dataization
-All classes (think, abstract object), both auto-generated and atomic, implement an `Object` interface with only one method - `dataize()`. This method is responsible for reducing a complex object to some `Atom` object. The `Atom` object, in turn, can not be dataized any further and will simply return itself whenever it receives a dataization request. 
+All classes (think, abstract objects), both auto-generated and atomic, implement an `Object` interface with only one method - `dataize()`. This method is responsible for reducing a complex object to some `Atom` object. The `Atom` object, in turn, can not be dataized any further and will simply return itself whenever it receives a dataization request. 
 
 ```python
 class Atom(Object):
