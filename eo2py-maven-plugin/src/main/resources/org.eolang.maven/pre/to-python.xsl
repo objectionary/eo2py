@@ -329,6 +329,17 @@ SOFTWARE.
                 <xsl:text>)</xsl:text>
 
             </xsl:when>
+<!--            if an attribute is applied and it is an inner object-->
+            <xsl:when test="$b and *">
+                <xsl:text>(self.</xsl:text>
+                <xsl:value-of select="eo:inner-attr-name(@base)"/>
+                <xsl:text>()</xsl:text>
+                <xsl:apply-templates select="." mode="application">
+                    <xsl:with-param name="name" select="$name"/>
+                    <xsl:with-param name="indent" select="$indent"/>
+                </xsl:apply-templates>
+                <xsl:text>)</xsl:text>
+            </xsl:when>
 <!--            some weird nestedness error-->
             <xsl:when test="$b/@level">
                 <xsl:message terminate="yes">
@@ -344,7 +355,7 @@ SOFTWARE.
                     <xsl:value-of select="@line"/>
                 </xsl:message>
             </xsl:when>
-<!--            if an attribute is applied-->
+<!--            if an attribute is referenced-->
             <xsl:when test="$b">
                 <xsl:text>(self.</xsl:text>
                 <xsl:value-of select="eo:inner-attr-name(@base)"/>
@@ -378,6 +389,14 @@ SOFTWARE.
                         <xsl:text>)</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
+            </xsl:when>
+<!--            if an inner class is defined recursively-->
+            <xsl:when test="ancestor::class[@name=$o/@base]">
+                <xsl:text>(</xsl:text>
+                <xsl:value-of select="concat('', eo:class-name(@base))"/>
+                <xsl:text>(self.attr__parent)</xsl:text>
+                <xsl:apply-templates select="*"/>
+                <xsl:text>)</xsl:text>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:text>(</xsl:text>
