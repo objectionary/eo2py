@@ -11,7 +11,7 @@ ls  target/generated-sources/
 
 echo "Formatting python files with black..." && sleep 1s
 printf "\n\nif __name__ == \"__main__\":\n    print(EOapp().dataize().data())\n\n" >> target/generated-sources/app.eo.py
-python -m black "$(find target/generated-sources | sed -n '2, $p' | tr '\n' ' ')"
+python -m black $(find target/generated-sources | sed -n '2, $p' | tr '\n' ' ')
 
 echo "Running Python files..." && sleep 1s
 python target/generated-sources/app.eo.py
