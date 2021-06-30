@@ -165,52 +165,44 @@ class Boolean(Atom):
         return Boolean(bool(self) == bool(self))
 
 
-class NumberOperation(Object):
+class NumberOperation(ApplicationMixin, Object):
     def __init__(self, parent: Number, operation: Callable[[Atom, Atom], Atom]):
         self.operation = operation
         self.parent = parent
-        self.other: Union[Atom] = Atom()
 
-    def __call__(self, arg: Object):
-        self.other = arg
-        return self
+        self.attributes = ["other", ]
+        self.attr_other: Optional[Object] = DataizationError()
 
     def dataize(self) -> Atom:
-        return self.operation(self.parent.dataize(), self.other.dataize())
+        return self.operation(self.parent.dataize(), self.attr_other.dataize())
 
 
-class BooleanIf(Object):
+class BooleanIf(ApplicationMixin, Object):
     def __init__(self, parent: Boolean):
         self.parent = parent
 
-        # Free attributes
         self.attributes = ["if_true", "if_false"]
         self.application_counter = 0
-        self.if_true = Object()
-        self.if_false = Object()
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
+        self.attr_if_true: Optional[Object] = DataizationError()
+        self.attr_if_false: Optional[Object] = DataizationError()
 
     def dataize(self) -> Atom:
         return (
-            self.if_true.dataize() if self.parent.dataize() else self.if_false.dataize()
+            self.attr_if_true.dataize() if self.parent.dataize() else self.attr_if_false.dataize()
         )
 
 
 class Array(Atom):
     def __init__(self):
-        self.attr_get = partial(ArrayGet, self)
         self.elements = []
+        self.attr_get = partial(ArrayGet, self)
 
     def __call__(self, arg: Object):
         self.elements.append(arg)
         return self
+
+    def __iter__(self):
+        return self.elements.__iter__()
 
     def data(self) -> List:
         return [elem.dataize().data() for elem in self.elements]
@@ -221,27 +213,18 @@ class Array(Atom):
             assert isinstance(index, int)
             return self.elements[index]
         else:
-            raise AttributeError(f"{item} is not an instance of Number!")
+            raise AttributeError(f"{item} is not a subtype of Object!")
 
 
-class ArrayGet(Object):
+class ArrayGet(ApplicationMixin, Object):
     def __init__(self, arr):
         self.arr = arr
 
         self.attributes = ["i"]
-        self.i = Object()
-        self.application_counter = 0
-
-    def __call__(self, arg: Object):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
+        self.attr_i = DataizationError()
 
     def dataize(self) -> Atom:
-        return self.arr[self.i].dataize()
+        return self.arr[self.attr_i].dataize()
 
 
 class String(Atom):
@@ -260,44 +243,25 @@ class String(Atom):
         return self.value
 
 
-class Sprintf(Object):
+class Sprintf(ApplicationMixin, Object):
     def __init__(self):
         self.attributes = ["fmt", "args"]
-        self.application_counter = 0
-        self.fmt = Object()
-        self.args = []
-
-    def __call__(self, arg: Object):
-        if self.application_counter == 1:
-            getattr(self, self.attributes[1]).append(arg)
-        else:
-            setattr(self, self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-            setattr(self, self.attributes[self.application_counter], [])
-        return self
+        self.attr_fmt = DataizationError()
+        self.attr_args = Array()
+        self.varargs = True
 
     def dataize(self) -> Object:
-        print(self.args)
-        return String(str(self.fmt) % tuple(arg.dataize().data() for arg in self.args))
+        return String(str(self.attr_fmt) % tuple(arg.dataize().data() for arg in self.attr_args))
 
 
-class Stdout(Atom):
+class Stdout(ApplicationMixin, Atom):
     def __init__(self):
         # Free attributes
         self.attributes = ["text"]
-        self.application_counter = 0
-        self.text = Object()
-
-    def __call__(self, arg: String):
-        if self.application_counter >= len(self.attributes):
-            raise ApplicationError(arg)
-        else:
-            setattr(self, self.attributes[self.application_counter], arg)
-            self.application_counter += 1
-        return self
+        self.attr_text = DataizationError()
 
     def dataize(self) -> Object:
-        print(self.text.dataize())
+        print(self.attr_text.dataize())
         return self
 
     def data(self):
@@ -315,7 +279,3 @@ def lazy_property(fn):
         return getattr(self, attr)
 
     return _lazy_property
-
-# if __name__ == '__main__':
-#     print(Number(2).attr_add()(Number(2)).dataize())
-#     print(Number(2).attr_less()(Number(3)).dataize())
