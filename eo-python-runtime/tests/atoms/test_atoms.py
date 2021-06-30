@@ -57,6 +57,8 @@ def test_string():
 
 def test_array():
     arr = Array()(Number(1))(Number(2))(Number(3))(Number(4))(Number(5))
+    for i, number in enumerate(arr):
+        assert number.dataize().data() == Attribute(arr, "get")(Number(i)).dataize().data()
     assert arr.dataize() == arr
     assert arr.dataize().data() == arr.data() == [1, 2, 3, 4, 5]
     assert arr[Number(2)] == Number(3)
