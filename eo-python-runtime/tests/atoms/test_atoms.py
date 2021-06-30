@@ -14,8 +14,8 @@ def test_error():
 
 
 def test_atom():
-    with pytest.raises(NotImplementedError):
-        Atom().dataize()
+    atom = Atom()
+    assert atom.dataize() == atom
     with pytest.raises(NotImplementedError):
         Atom().data()
 
