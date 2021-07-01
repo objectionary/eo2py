@@ -13,7 +13,7 @@ OR
 Install locally:
 
 ```shell
-git clone https://github.com/nikololiahim/eo-python.git
+git clone https://github.com/polystat/eo2py.git
 cd eo-python-runtime
 pip install --editable .
 ```

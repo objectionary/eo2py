@@ -1,6 +1,6 @@
-# eo-python
+# eo2py
 
-![build](https://github.com/nikololiahim/eo-python/actions/workflows/maven.yml/badge.svg) [![codecov](https://codecov.io/gh/nikololiahim/eo-python/branch/main/graph/badge.svg?token=CuHSiScipH)](https://codecov.io/gh/nikololiahim/eo-python)
+![build](https://github.com/polystat/eo2py/actions/workflows/maven.yml/badge.svg) [![codecov](https://codecov.io/gh/nikololiahim/eo-python/branch/main/graph/badge.svg?token=CuHSiScipH)](https://codecov.io/gh/nikololiahim/eo-python)
 
 A Python implementation of [EO](https://github.com/cqfn/eo).
 
@@ -9,10 +9,10 @@ A Python implementation of [EO](https://github.com/cqfn/eo).
     * Maven plugin that transforms `.eo` programs into `.py` programs using XSLT.
 * Python runtime environment
     * Implementation of atoms and data objects as a [pip package](https://pypi.org/project/eo2py/).
-* Examples of translated programs in [`eo-python-runtime/tests/example_programs`](https://github.com/nikololiahim/eo-python/tree/main/eo-python-runtime/tests/example_programs) as `pytest` unit tests.
-* [Sandbox](https://github.com/nikololiahim/eo-python/tree/main/sandbox) to compile and execute your own EO programs! 
+* Examples of translated programs in [`eo-python-runtime/tests/example_programs`](https://github.com/polystat/eo2py/tree/main/eo-python-runtime/tests/example_programs) as `pytest` unit tests.
+* [Sandbox](https://github.com/polystat/eo2py/tree/main/sandbox) to compile and execute your own EO programs! 
 ## How to use
-Check out `README.md` in [`sandbox`](https://github.com/nikololiahim/eo-python/tree/main/sandbox) directory.
+Check out `README.md` in [`sandbox`](https://github.com/polystat/eo2py/tree/main/sandbox) directory.
 
 
 ## Supported features:
@@ -186,7 +186,7 @@ Being a copy of objects in EO with some arguments, application is class instanti
 obj(arg1)(arg2)(arg3)...
 ```
 
-The particular implementation of `__call__()` is injected into each `Object` with the `ApplicationMixin` class defined in [atoms.py](https://github.com/nikololiahim/eo-python/blob/main/eo-python-runtime/src/eo2py/atoms.py), whom all classes inherit from:
+The particular implementation of `__call__()` is injected into each `Object` with the `ApplicationMixin` class defined in [atoms.py](https://github.com/polystat/eo2py/blob/main/eo-python-runtime/src/eo2py/atoms.py), whom all classes inherit from:
 
 ```=
 [truth_value] > answer

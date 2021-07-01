@@ -6,7 +6,7 @@ to the `sandbox` directory (you will need
 installed):
 
 ```bash
-$ git clone https://github.com/nikololiahim/eo-python.git
+$ git clone https://github.com/polystat/eo2py.git
 $ cd eo-python/sandbox
 ```
 
