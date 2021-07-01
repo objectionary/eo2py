@@ -7,7 +7,7 @@
 
   <groupId>org.eolang</groupId>
   <artifactId>eo2py-maven-plugin</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
   <packaging>maven-plugin</packaging>
 
   <name>eo2py-maven-plugin Maven Plugin</name>
