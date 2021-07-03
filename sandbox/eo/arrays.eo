@@ -1,0 +1,26 @@
+[] > array
+  * > @
+    "string"
+    true
+    *
+      "another array"
+      1
+      2
+      3
+    4
+    5
+
+
+[] > app
+  stdout > @
+    sprintf
+      "%s %s %s %s %s %s %s %s"
+      array.get 0
+      array.get 1
+      (array.get 2).get 0
+      (array.get 2).get 1
+      (array.get 2).get 2
+      (array.get 2).get 3
+      array.get 3
+      array.get 4
+
