@@ -147,8 +147,8 @@ SOFTWARE.
         <xsl:value-of select="eo:eol(2)"/>
         <xsl:if test="not(attr[@name='@'])">
             <xsl:text>self.attr__phi = DataizationError() </xsl:text>
+            <xsl:value-of select="eo:eol(2)"/>
         </xsl:if>
-        <xsl:value-of select="eo:eol(2)"/>
         <xsl:apply-templates select="attr/free" mode="assignments"/>
         <xsl:apply-templates select="attr/vararg" mode="assignment"/>
         <xsl:value-of select="eo:eol(2)"/>
@@ -292,10 +292,10 @@ SOFTWARE.
                 <xsl:text>()</xsl:text>
                 <xsl:apply-templates select="." mode="application">
                     <xsl:with-param name="name" select="$name"/>
+                    <xsl:with-param name="b" select="$b"/>
                     <xsl:with-param name="indent" select="$indent"/>
                 </xsl:apply-templates>
                 <xsl:text>)</xsl:text>
-
             </xsl:when>
 <!--            if an attribute is applied and it is an inner object-->
             <xsl:when test="$b and *">
@@ -401,7 +401,9 @@ SOFTWARE.
             </xsl:otherwise>
         </xsl:choose>
         <xsl:text>)</xsl:text>
+        <xsl:variable name="b" select="/program/objects/class[@original-name=$method]"/>
         <xsl:apply-templates select="." mode="application">
+            <xsl:with-param name="b" select="$b"/>
             <xsl:with-param name="indent" select="$indent"/>
             <xsl:with-param name="name" select="$name"/>
             <xsl:with-param name="skip" select="1"/>
@@ -409,22 +411,46 @@ SOFTWARE.
         <xsl:text>)</xsl:text>
     </xsl:template>
     <xsl:template match="*" mode="application">
+        <xsl:param name="b"/>
         <xsl:param name="indent"/>
         <xsl:param name="skip" select="0"/>
         <xsl:param name="name" select="'o'"/>
         <xsl:for-each select="./*[name()!='value' and position() &gt; $skip][not(@level)]">
-            <xsl:apply-templates select=".">
-                <xsl:with-param name="name" select="$name"/>
-                <xsl:with-param name="indent" select="$indent"/>
-            </xsl:apply-templates>
-        </xsl:for-each>
-        <xsl:for-each select="./*[name()!='value' and position() &gt; $skip][not(@level)]">
+
             <xsl:choose>
                 <xsl:when test="@as">
+                    <xsl:value-of select="eo:eol(0)"/>
+                    <xsl:text>(</xsl:text>
                     <xsl:text>"</xsl:text>
                     <xsl:value-of select="@as"/>
                     <xsl:text>"</xsl:text>
+                    <xsl:text>, </xsl:text>
+                    <xsl:apply-templates select=".">
+                        <xsl:with-param name="name" select="$name"/>
+                        <xsl:with-param name="indent" select="$indent"/>
+                    </xsl:apply-templates>
+                    <xsl:text>)</xsl:text>
                 </xsl:when>
+                <xsl:when test="$b">
+                    <xsl:variable name="attr_position" select="position()"/>
+
+                    <xsl:text>(</xsl:text>
+                    <xsl:text>"</xsl:text>
+                    <xsl:value-of select="$b/attr[$attr_position]/@name"/>
+                    <xsl:text>"</xsl:text>
+                    <xsl:text>, </xsl:text>
+                    <xsl:apply-templates select=".">
+                        <xsl:with-param name="name" select="$name"/>
+                        <xsl:with-param name="indent" select="$indent"/>
+                    </xsl:apply-templates>
+                    <xsl:text>)</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:apply-templates select=".">
+                        <xsl:with-param name="name" select="$name"/>
+                        <xsl:with-param name="indent" select="$indent"/>
+                    </xsl:apply-templates>
+                </xsl:otherwise>
             </xsl:choose>
         </xsl:for-each>
         <xsl:apply-templates select="value">
