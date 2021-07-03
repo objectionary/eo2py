@@ -242,41 +242,9 @@ SOFTWARE.
         <xsl:value-of select="eo:eol(1)"/>
     </xsl:template>
     <xsl:template match="array">
-        <xsl:param name="indent"/>
-        <xsl:param name="name" select="'a'"/>
-        <xsl:value-of select="$indent"/>
-        <xsl:text>Phi[] </xsl:text>
-        <xsl:value-of select="$name"/>
-        <xsl:text>_a = new Phi[</xsl:text>
-        <xsl:value-of select="count(*)"/>
-        <xsl:text>];</xsl:text>
-        <xsl:value-of select="eo:eol(0)"/>
-        <xsl:for-each select="*">
-            <xsl:variable name="n">
-                <xsl:value-of select="$name"/>
-                <xsl:text>_a</xsl:text>
-                <xsl:value-of select="position() - 1"/>
-            </xsl:variable>
-            <xsl:apply-templates select=".">
-                <xsl:with-param name="indent" select="$indent"/>
-                <xsl:with-param name="name" select="$n"/>
-            </xsl:apply-templates>
-            <xsl:value-of select="$indent"/>
-            <xsl:value-of select="$name"/>
-            <xsl:text>_a[</xsl:text>
-            <xsl:value-of select="position() - 1"/>
-            <xsl:text>] = </xsl:text>
-            <xsl:value-of select="$n"/>
-            <xsl:text>;</xsl:text>
-            <xsl:value-of select="eo:eol(0)"/>
-        </xsl:for-each>
-        <xsl:value-of select="$indent"/>
-        <xsl:text>Phi </xsl:text>
-        <xsl:value-of select="$name"/>
-        <xsl:text> = new PhWith(new EOarray(self), "&#x394;", new Data.Value&lt;Phi[]&gt;(</xsl:text>
-        <xsl:value-of select="$name"/>
-        <xsl:text>_a));</xsl:text>
-        <xsl:value-of select="eo:eol(0)"/>
+        <xsl:text>(Array()</xsl:text>
+        <xsl:apply-templates select="*"/>
+        <xsl:text>)</xsl:text>
     </xsl:template>
     <xsl:template match="o[not(@base) and @name]">
         <xsl:text>/* default */</xsl:text>
@@ -370,11 +338,11 @@ SOFTWARE.
             <xsl:when test="starts-with(@base, 'org.eolang.')">
                 <xsl:variable name="objName" select="tokenize(@base, '\.')[last()]"/>
                 <xsl:choose>
-                    <xsl:when test="not($objName = 'float' or $objName = 'string' or  $objName = 'int')">
+                    <xsl:when test="not($objName = 'float' or $objName = 'string' or  $objName = 'int' or $objName = 'bool')">
                         <xsl:text>(</xsl:text>
                         <xsl:value-of select="concat(upper-case(substring($objName, 1, 1)), substring($objName, 2))"/>
                         <xsl:text>()</xsl:text>
-                        <xsl:apply-templates select="." mode="application">
+                        <xsl:apply-templates select="*">
                             <xsl:with-param name="name" select="$name"/>
                             <xsl:with-param name="indent" select="$indent"/>
                         </xsl:apply-templates>
@@ -382,7 +350,7 @@ SOFTWARE.
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:text>(</xsl:text>
-                        <xsl:apply-templates select="." mode="application">
+                        <xsl:apply-templates select="*">
                             <xsl:with-param name="name" select="$name"/>
                             <xsl:with-param name="indent" select="$indent"/>
                         </xsl:apply-templates>
@@ -465,10 +433,13 @@ SOFTWARE.
         </xsl:apply-templates>
     </xsl:template>
     <xsl:template match="value">
+        <xsl:text>(</xsl:text>
         <xsl:value-of select="@python-type"/>
         <xsl:text>(</xsl:text>
+        <xsl:if test="@python-type = 'Boolean'">"</xsl:if>
         <xsl:value-of select="text()"/>
-        <xsl:text>)</xsl:text>
+        <xsl:if test="@python-type = 'Boolean'">"</xsl:if>
+        <xsl:text>))</xsl:text>
     </xsl:template>
     <xsl:template match="meta[head='package']" mode="head">
         <xsl:text>package </xsl:text>
