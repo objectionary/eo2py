@@ -99,7 +99,6 @@ class EOapp(ApplicationMixin, Object):
         return Stdout()(Sprintf()((String("%s\n")))(Attribute((EOd()), "a_attr")))
 
 
-
 def test_chained_phi(capsys):
     assert EOapp().dataize()
     assert 'something' in capsys.readouterr().out
