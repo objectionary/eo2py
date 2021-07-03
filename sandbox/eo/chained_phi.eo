@@ -1,0 +1,17 @@
+[attr] > a
+  attr > a_attr
+
+[] > b
+  a "something" > @
+
+[] > c
+  b > @
+
+[] > d
+  c > @
+
+[args...] > app
+  stdout > @
+    sprintf
+      "%s\n"
+      d.a_attr
