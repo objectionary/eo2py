@@ -22,21 +22,10 @@ Check out `README.md` in [`sandbox`](https://github.com/polystat/eo2py/tree/main
 * Dataization
 * Inner objects, both closed and abstract
 * Varargs
+* Arrays
 
 
 ## Unsupported features:
-* Array literals (Implemented in Python API, not yet integrated into translator)
-    * Workaround: arrays are available as varargs
-     ``` 
-     [items...] > array
-       [i] > get
-         get. > @
-           items
-           i
-           
-    array 1 2 3 4 5 > numbers
-    numbers.get 4 > last
-     ```
 * Metas
 * Dataize Once (`!`)
 * `memory` atom
