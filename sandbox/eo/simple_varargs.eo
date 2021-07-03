@@ -1,0 +1,7 @@
+[args...] > appArray
+  stdout > @
+    sprintf
+      "%d"
+      get.
+        args
+        3
