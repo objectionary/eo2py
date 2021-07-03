@@ -7,7 +7,7 @@
   <groupId>org.eolang</groupId>
   <artifactId>eo2py</artifactId>
   <packaging>pom</packaging>
-  <version>0.1.6</version>
+  <version>0.1.7</version>
   <modules>
     <module>eo2py-maven-plugin</module>
   </modules>
