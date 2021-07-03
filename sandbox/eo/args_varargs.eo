@@ -1,0 +1,10 @@
+[arg1 arg2 varargs...] > obj
+  stdout > @
+    sprintf
+      "%d %d %d"
+      arg1
+      arg2
+      get.
+        varargs
+        3
+
