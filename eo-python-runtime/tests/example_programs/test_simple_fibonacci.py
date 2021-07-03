@@ -39,6 +39,6 @@ class EOfibonacci(ApplicationMixin, Object):
                 EOfibonacci()(Attribute((self.attr_n), "sub")(Number(2))))))
 
 
-def test_fibonacci():
+def test_simple_fibonacci():
     res = EOfibonacci()(Number(10))
     assert res.dataize() == Number(55)

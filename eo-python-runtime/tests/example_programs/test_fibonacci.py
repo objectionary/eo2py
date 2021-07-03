@@ -115,5 +115,5 @@ def fibonacci(n):
 
 
 @pytest.mark.parametrize("n", list(range(1, 11)))
-def test_auto_fibonacci(n):
+def test_fibonacci(n):
     assert EOfibonacci()(Number(n)).dataize() == Number(fibonacci(n))
