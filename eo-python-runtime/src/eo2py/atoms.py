@@ -9,12 +9,15 @@ class ApplicationMixin:
     application_counter: int = 0
     attributes: List[str] = []
 
-    def __call__(self, *args: "Object"):
+    def __call__(self, *args):
+        #  to be executed when called from class defined in atoms.py.
+        #  TODO better way to assert atomicity
         if len(args) == 1:
+            assert isinstance(self, Atom) or isinstance(self, BooleanIf) or isinstance(self, Sprintf) or isinstance(self, NumberOperation)
             arg = args[0]
             if not self.varargs:
                 if self.application_counter >= len(self.attributes):
-                    raise ApplicationError(arg)
+                    raise ApplicationError(self, arg)
                 else:
                     setattr(self, "attr_" + self.attributes[self.application_counter], arg)
                     self.application_counter += 1
@@ -24,6 +27,19 @@ class ApplicationMixin:
                     self.application_counter += 1
                 elif self.application_counter == len(self.attributes) - 1:
                     getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
+        #  to be executed when called from user-defined objects
+        elif len(args) == 2:
+            assert isinstance(args[0], str)
+            assert isinstance(args[1], Object)
+            attr_name = "attr_" + args[0]
+            if hasattr(self, attr_name) and isinstance(getattr(self, attr_name), DataizationError):
+                setattr(self, attr_name, args[1])
+            elif hasattr(self, attr_name):
+                raise Exception(f"Attempt to overwrite existing binding of {attr_name}")
+            else:
+                raise Exception(f"{self} doesn't have attribute {attr_name}")
+        else:
+            raise Exception(f"__call__ for application received unexpected arguments: {args}")
         return self
 
 
@@ -49,7 +65,8 @@ class Attribute(Object):
         self.name = name
         self.args: List[Object] = []
 
-    def __call__(self, *args: Object):
+    # def __call__(self, *args: Object):
+    def __call__(self, *args):
         self.args.extend(args)
         return self
 
@@ -77,15 +94,19 @@ class Attribute(Object):
         if attr is not None:
             if callable(attr):
                 print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
-                res = reduce(lambda obj, arg: obj(arg), self.args, attr())
+                # res = reduce(lambda obj, arg: obj(arg), self.args, attr())
+                res = attr(*self.args)
                 return res.dataize()
             else:
                 print(f"Dataizing {attr}, no args needed.")
                 return attr.dataize()
 
         print(f"Dataizing {self.obj}...")
-        attr = getattr(self.obj.dataize(), self.inner_name())()
-        attr = reduce(lambda obj, arg: obj(arg), self.args, attr)
+        attr = getattr(self.obj.dataize(), self.inner_name())
+        if isinstance(attr, BooleanIf):
+            attr = reduce(lambda obj, arg: obj(arg), self.args, attr)
+        else:
+            attr = attr(*self.args)
         return attr.dataize()
 
 
@@ -95,20 +116,20 @@ class DataizationError(Object):
 
 
 class ApplicationError(Exception):
-    def __init__(self, arg):
-        super().__init__(f"Object cannot be copied with {arg} as argument")
+    def __init__(self, obj, arg):
+        super().__init__(f"Object {obj} cannot be copied with {arg} as argument")
 
 
 class Number(Atom):
     def __init__(self, value: Union[int, float]):
         self.value = value
-        self.attr_add = partial(NumberOperation, self, operator.add)
-        self.attr_sub = partial(NumberOperation, self, operator.sub)
-        self.attr_pow = partial(NumberOperation, self, operator.pow)
-        self.attr_less = partial(NumberOperation, self, operator.lt)
-        self.attr_mul = partial(NumberOperation, self, operator.mul)
-        self.attr_leq = partial(NumberOperation, self, operator.le)
-        self.attr_eq = partial(NumberOperation, self, operator.eq)
+        self.attr_add = NumberOperation(self, operator.add)
+        self.attr_sub = NumberOperation(self, operator.sub)
+        self.attr_pow = NumberOperation(self, operator.pow)
+        self.attr_less = NumberOperation(self, operator.lt)
+        self.attr_mul = NumberOperation(self, operator.mul)
+        self.attr_leq = NumberOperation(self, operator.le)
+        self.attr_eq = NumberOperation(self, operator.eq)
 
     def data(self) -> Union[int, float]:
         return self.value
@@ -150,7 +171,7 @@ class Boolean(Atom):
         else:
             raise AttributeError("Boolean: value should be either str or bool")
 
-        self.attr_if = partial(BooleanIf, self)
+        self.attr_if = BooleanIf(self)
 
     def data(self) -> bool:
         return self.value
