@@ -277,9 +277,8 @@ SOFTWARE.
             </xsl:when>
 <!--            if inner class is needed to be returned as a value of a bound attribute-->
             <xsl:when test="@base and @cut">
-                <xsl:text>partial(</xsl:text>
                 <xsl:value-of select="eo:class-name($b/@name)"/>
-                <xsl:text>, self)</xsl:text>
+                <xsl:text>(self)</xsl:text>
                 <xsl:apply-templates select="." mode="application">
                     <xsl:with-param name="name" select="$name"/>
                     <xsl:with-param name="indent" select="$indent"/>
