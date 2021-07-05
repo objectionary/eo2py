@@ -11,3 +11,5 @@ which python && sleep 1s
 
 echo "Installing dependencies..." && sleep 1s
 python -m pip install black ../eo-python-runtime/
+cd .. && mvn -DskipTests clean install
+cd sandbox || exit
