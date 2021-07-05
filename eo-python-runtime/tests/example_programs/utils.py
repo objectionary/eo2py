@@ -1,3 +1,7 @@
+from functools import reduce
+import operator
+
+
 def fibonacci(n):
     if n < 3:
         return 1
@@ -9,7 +13,4 @@ def fibonacci(n):
 
 
 def factorial(n):
-    if n < 2:
-        return 1
-    else:
-        return factorial(n - 1) * n
+    return reduce(operator.mul, range(1, n + 1), 1)
