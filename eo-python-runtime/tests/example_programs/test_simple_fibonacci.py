@@ -5,7 +5,6 @@
 # by the EO compiler v.0.1.25.
 
 from eo2py.atoms import *
-from functools import partial
 
 """
 +package sandbox
@@ -39,6 +38,11 @@ class EOfibonacci(ApplicationMixin, Object):
                 EOfibonacci()(Attribute((self.attr_n), "sub")(Number(2))))))
 
 
-def test_simple_fibonacci():
-    res = EOfibonacci()(Number(10))
-    assert res.dataize() == Number(55)
+import pytest
+from .utils import fibonacci
+
+
+@pytest.mark.parametrize("n", list(range(1, 10)))
+def test_simple_fibonacci(n):
+    res = EOfibonacci()(Number(n))
+    assert res.dataize() == Number(fibonacci(n))

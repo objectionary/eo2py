@@ -5,7 +5,6 @@
 # by the EO compiler v.0.1.25.
 
 from eo2py.atoms import *
-from functools import partial
 
 """
 +package sandbox
@@ -81,12 +80,7 @@ class EOappFactorial(ApplicationMixin, Object):
 
 import pytest
 
-
-def factorial(n):
-    if n < 2:
-        return 1
-    else:
-        return factorial(n - 1) * n
+from .utils import factorial
 
 
 @pytest.mark.parametrize("n", list(range(-2, 10)))
