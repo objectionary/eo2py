@@ -1,3 +1,21 @@
+[] > hello
+  stdout > @
+    sprintf > hello_fmt
+      "%s %s" > fmt
+      "hello" > msg
+      fmt
+
+
+[] > h
+  hello > @
+
+[] > hello_world
+  stdout > @
+    sprintf > world
+      (h.fmt)
+      (h.msg)
+      "world"
+
 [n] > fibonacci
   if. > @
     n.less 2
