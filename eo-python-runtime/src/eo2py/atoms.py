@@ -9,7 +9,8 @@ class ApplicationMixin:
     application_counter: int = 0
     attributes: List[str] = []
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
+        assert len(args) + len(kwargs) == 1
         #  to be executed when called from class defined in atoms.py.
         #  TODO better way to assert atomicity
         if len(args) == 1:
@@ -28,12 +29,11 @@ class ApplicationMixin:
                 elif self.application_counter == len(self.attributes) - 1:
                     getattr(self, "attr_" + self.attributes[self.application_counter])(arg)
         #  to be executed when called from user-defined objects
-        elif len(args) == 2:
-            assert isinstance(args[0], str)
-            assert isinstance(args[1], Object)
-            attr_name = "attr_" + args[0]
+        elif len(kwargs) == 1:
+            name = next(iter(kwargs))
+            attr_name = "attr_" + name
             if hasattr(self, attr_name) and isinstance(getattr(self, attr_name), DataizationError):
-                setattr(self, attr_name, args[1])
+                setattr(self, attr_name, kwargs[name])
             elif hasattr(self, attr_name):
                 raise Exception(f"Attempt to overwrite existing binding of {attr_name}")
             else:
@@ -66,8 +66,12 @@ class Attribute(Object):
         self.args: List[Object] = []
 
     # def __call__(self, *args: Object):
-    def __call__(self, *args):
-        self.args.extend(args)
+    def __call__(self, *args, **kwargs):
+        if len(args):
+            self.args.extend(args)
+        elif len(kwargs):
+            self.args = {}
+            self.args.update(kwargs)
         return self
 
     def inner_name(self):
@@ -95,7 +99,10 @@ class Attribute(Object):
             if callable(attr):
                 print(f"Dataizing {attr} applied to {[str(arg) for arg in self.args]}.")
                 # res = reduce(lambda obj, arg: obj(arg), self.args, attr())
-                res = attr(*self.args)
+                if isinstance(self.args, list):
+                    res = attr(*self.args)
+                elif isinstance(self.args, dict):
+                    res = attr(**self.args)
                 return res.dataize()
             else:
                 print(f"Dataizing {attr}, no args needed.")
@@ -106,7 +113,10 @@ class Attribute(Object):
         if isinstance(attr, BooleanIf):
             attr = reduce(lambda obj, arg: obj(arg), self.args, attr)
         else:
-            attr = attr(*self.args)
+            if isinstance(self.args, list):
+                attr = attr(*self.args)
+            elif isinstance(self.args, dict):
+                attr = attr(**self.args)
         return attr.dataize()
 
 

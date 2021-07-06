@@ -152,10 +152,10 @@ SOFTWARE.
         <xsl:apply-templates select="attr/free" mode="assignments"/>
         <xsl:apply-templates select="attr/vararg" mode="assignment"/>
         <xsl:value-of select="eo:eol(2)"/>
-        <xsl:text>self.attributes = [</xsl:text>
-        <xsl:apply-templates select="attr/(free|vararg)" mode="attribute_names"/>
-        <xsl:text>]</xsl:text>
-        <xsl:value-of select="eo:eol(2)"/>
+<!--        <xsl:text>self.attributes = [</xsl:text>-->
+<!--        <xsl:apply-templates select="attr/(free|vararg)" mode="attribute_names"/>-->
+<!--        <xsl:text>]</xsl:text>-->
+<!--        <xsl:value-of select="eo:eol(2)"/>-->
 <!--        <xsl:text>self.application_counter = 0</xsl:text>-->
         <xsl:value-of select="eo:eol(2)"/>
         <xsl:choose>
@@ -415,15 +415,11 @@ SOFTWARE.
         <xsl:param name="skip" select="0"/>
         <xsl:param name="name" select="'o'"/>
         <xsl:for-each select="./*[name()!='value' and position() &gt; $skip][not(@level)]">
-
             <xsl:choose>
                 <xsl:when test="@as">
-                    <xsl:value-of select="eo:eol(0)"/>
                     <xsl:text>(</xsl:text>
-                    <xsl:text>"</xsl:text>
                     <xsl:value-of select="@as"/>
-                    <xsl:text>"</xsl:text>
-                    <xsl:text>, </xsl:text>
+                    <xsl:text>=</xsl:text>
                     <xsl:apply-templates select=".">
                         <xsl:with-param name="name" select="$name"/>
                         <xsl:with-param name="indent" select="$indent"/>
@@ -432,12 +428,12 @@ SOFTWARE.
                 </xsl:when>
                 <xsl:when test="$b">
                     <xsl:variable name="attr_position" select="position()"/>
-
+                    <xsl:variable name="inferred_name" select="$b/attr[$attr_position]/@name"/>
                     <xsl:text>(</xsl:text>
-                    <xsl:text>"</xsl:text>
-                    <xsl:value-of select="$b/attr[$attr_position]/@name"/>
-                    <xsl:text>"</xsl:text>
-                    <xsl:text>, </xsl:text>
+                    <xsl:if test="$inferred_name">
+                        <xsl:value-of select="$inferred_name"/>
+                        <xsl:text>=</xsl:text>
+                    </xsl:if>
                     <xsl:apply-templates select=".">
                         <xsl:with-param name="name" select="$name"/>
                         <xsl:with-param name="indent" select="$indent"/>
