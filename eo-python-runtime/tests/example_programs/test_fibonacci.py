@@ -103,15 +103,7 @@ class EOfibonacciEOrec(ApplicationMixin, Object):
 
 import pytest
 
-
-def fibonacci(n):
-    if n < 3:
-        return 1
-    else:
-        memo = [1] * n
-        for i in range(2, n):
-            memo[i] = memo[i - 1] + memo[i - 2]
-        return memo[n - 1]
+from .utils import fibonacci
 
 
 @pytest.mark.parametrize("n", list(range(1, 11)))

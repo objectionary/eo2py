@@ -4,8 +4,6 @@ echo "Activating venv..." && sleep 1s
 source venv/bin/activate
 
 echo "Compiling .eo files..." && sleep 1s
-cd .. && mvn clean install
-cd sandbox || exit
 mvn clean compile
 
 echo "Generated Python Files:" && sleep 1s

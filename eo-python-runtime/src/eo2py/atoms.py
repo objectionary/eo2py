@@ -246,12 +246,16 @@ class String(Atom):
 class Sprintf(ApplicationMixin, Object):
     def __init__(self):
         self.attributes = ["fmt", "args"]
-        self.attr_fmt = DataizationError()
+        self.attr_fmt: Union[Object, DataizationError] = DataizationError()
         self.attr_args = Array()
         self.varargs = True
 
     def dataize(self) -> Object:
-        return String(str(self.attr_fmt) % tuple(arg.dataize().data() for arg in self.attr_args))
+        fmt = self.attr_fmt.dataize().data()
+        if isinstance(fmt, str):
+            return String(fmt % tuple(arg.dataize().data() for arg in self.attr_args))
+        else:
+            raise AttributeError("The object in Sprintf.fmt did not resolve to String!")
 
 
 class Stdout(ApplicationMixin, Atom):

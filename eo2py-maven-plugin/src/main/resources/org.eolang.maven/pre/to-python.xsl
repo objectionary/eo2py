@@ -276,7 +276,7 @@ SOFTWARE.
                 </xsl:apply-templates>
             </xsl:when>
 <!--            if inner class is needed to be returned as a value of a bound attribute-->
-            <xsl:when test="@base and @cut">
+            <xsl:when test="@cut and @name">
                 <xsl:text>partial(</xsl:text>
                 <xsl:value-of select="eo:class-name($b/@name)"/>
                 <xsl:text>, self)</xsl:text>
@@ -285,7 +285,16 @@ SOFTWARE.
                     <xsl:with-param name="indent" select="$indent"/>
                 </xsl:apply-templates>
             </xsl:when>
-<!--            if a global class is applied-->
+            <xsl:when test="@cut and not(@name)">
+                <xsl:text>(self.</xsl:text>
+                <xsl:value-of select="eo:inner-attr-name(@base)"/>
+                <xsl:text>)</xsl:text>
+                <xsl:apply-templates select="." mode="application">
+                    <xsl:with-param name="name" select="$name"/>
+                    <xsl:with-param name="indent" select="$indent"/>
+                </xsl:apply-templates>
+            </xsl:when>
+            <!--            if a global class is applied-->
             <xsl:when test="$b and name($b)='class'">
                 <xsl:text>(</xsl:text>
                 <xsl:value-of select="eo:class-name(@base)"/>
@@ -295,7 +304,6 @@ SOFTWARE.
                     <xsl:with-param name="indent" select="$indent"/>
                 </xsl:apply-templates>
                 <xsl:text>)</xsl:text>
-
             </xsl:when>
 <!--            if an attribute is applied and it is an inner object-->
             <xsl:when test="$b and *">

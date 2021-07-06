@@ -1,0 +1,32 @@
+[] > hello
+  stdout > @
+    sprintf > hello_fmt
+      "%s %s" > fmt
+      "hello" > msg
+      fmt
+
+
+[] > h
+  hello > @
+
+[] > hello_world
+  stdout > @
+    sprintf > world
+      (h.fmt)
+      (h.msg)
+      "world"
+
+[n] > fibonacci
+  if. > @
+    n.less 2
+    n
+    add.
+      fibonacci (n.sub 1)
+      fibonacci (n.sub 2)
+
+[args...] > app
+  stdout > @
+    sprintf
+      "%dth Fibonacci number is %d\n"
+      args.get 0 > n
+      fibonacci n
